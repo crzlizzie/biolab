@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="冯海倩、任姬">
+<title>赋能"设计者"：Trae驱动的高中生物互动模拟程序开发路径及其教学价值研究 · 配套资源</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Microsoft YaHei','PingFang SC','Hiragino Sans GB','STHeiti','SimHei',sans-serif;
+  background:linear-gradient(160deg,#e8f0fe 0%,#f3f8ff 30%,#edf4f2 70%,#e8f0fe 100%);
+  min-height:100vh;color:#2c3e50;
+}
+.hero{
+  background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#00838f 100%);
+  color:#fff;padding:48px 24px 40px;text-align:center;
+  clip-path:ellipse(120% 100% at 50% 0);
+  box-shadow:0 4px 30px rgba(13,71,161,0.3);
+}
+.hero .badge{
+  display:inline-block;background:rgba(255,255,255,0.18);
+  padding:6px 20px;border-radius:20px;font-size:13px;margin-bottom:16px;
+  letter-spacing:2px;backdrop-filter:blur(4px);
+}
+.hero h1{
+  font-size:26px;font-weight:700;line-height:1.5;max-width:800px;margin:0 auto 8px;
+}
+.hero .sub{
+  font-size:15px;opacity:0.9;font-weight:400;
+}
+.container{max-width:1100px;margin:0 auto;padding:0 20px 48px}
+
+.intro{
+  background:#fff;border-radius:14px;padding:28px 32px;margin-top:-20px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.06);position:relative;z-index:2;
+}
+.intro h2{font-size:18px;color:#0d47a1;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.intro p{font-size:14px;line-height:1.9;color:#546e7a}
+.intro .meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:#78909c}
+.intro .meta span{background:#f0f4f8;padding:5px 14px;border-radius:6px}
+
+.section{margin-top:32px}
+.section h2{
+  font-size:18px;color:#0d47a1;margin-bottom:16px;padding-left:14px;
+  border-left:4px solid #00838f;display:flex;align-items:center;gap:8px;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+
+.card{
+  background:#fff;border-radius:12px;padding:22px 24px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+  transition:transform .2s,box-shadow .2s;
+  text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:10px;
+  border:1px solid transparent;
+}
+.card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 6px 24px rgba(13,71,161,0.13);
+  border-color:#90caf9;
+}
+.card .idx{
+  font-size:12px;font-weight:700;color:#00838f;letter-spacing:1px;
+  text-transform:uppercase;
+}
+.card h3{font-size:16px;color:#1a237e;line-height:1.4}
+.card .desc{font-size:13px;color:#607d8b;line-height:1.7}
+.card .tag{
+  display:inline-block;font-size:11px;background:#e8f5e9;color:#2e7d32;
+  padding:3px 10px;border-radius:4px;align-self:flex-start;
+}
+.card .tag.blue{background:#e3f2fd;color:#1565c0}
+.card .tag.teal{background:#e0f2f1;color:#00695c}
+.card .tag.purple{background:#f3e5f5;color:#7b1fa2}
+
+.footer{
+  text-align:center;padding:32px 20px;color:#90a4ae;font-size:13px;
+  border-top:1px solid #e0e0e0;margin-top:40px;
+}
+.footer strong{color:#546e7a}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">高中生物 · 互动模拟程序</div>
+  <h1>赋能"设计者"：Trae驱动的高中生物<br>互动模拟程序开发路径及其教学价值研究</h1>
+  <div class="sub">配套数字资源</div>
+</div>
+
+<div class="container">
+
+<div class="intro">
+  <h2>📖 资源说明</h2>
+  <p>
+  本套资源包含<strong>8个高中生物互动模拟程序</strong>，覆盖人教版必修与选择性必修核心实验及概念机制。
+  所有程序均可直接在浏览器中打开运行，无需安装任何软件。互动方式包括拖拽分类、参数调节、步骤推演、Canvas动画等，
+  适用于课堂教学演示、学生自主探究及课后复习场景。
+  </p>
+  <div class="meta">
+    <span>📚 覆盖范围：必修1 · 必修2 · 选择性必修1~3</span>
+    <span>🔧 开发工具：Trae + HTML/CSS/JavaScript</span>
+    <span>👩‍💻 作者：冯海倩、任姬</span>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🧬 必修1《分子与细胞》</h2>
+  <div class="grid">
+    <a href="1nucleic_acid_classifier.html" class="card" target="_blank">
+      <div class="idx">实验 01</div>
+      <h3>核酸成分分类挑战</h3>
+      <div class="desc">通过拖拽操作区分DNA与RNA的组成成分，理解两类核酸在五碳糖、碱基等方面的异同。</div>
+      <span class="tag blue">拖拽交互</span>
+    </a>
+    <a href="2photosynthesis_game/光合作用.html" class="card" target="_blank">
+      <div class="idx">实验 02</div>
+      <h3>光合作用互动游戏</h3>
+      <div class="desc">调整光照强度、CO₂浓度等环境条件，观察光反应与暗反应过程中物质和能量的动态变化。</div>
+      <span class="tag">参数调节</span>
+    </a>
+    <a href="3umbrella_algae_grafting_experiment..html" class="card" target="_blank">
+      <div class="idx">实验 03</div>
+      <h3>伞藻嫁接与核移植虚拟实验</h3>
+      <div class="desc">模拟经典伞藻实验，通过嫁接与核移植操作，探究细胞核控制生物性状的实验证据。</div>
+      <span class="tag blue">步骤推演</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🧪 必修2《遗传与进化》</h2>
+  <div class="grid">
+    <a href="4genetic_simulation.html" class="card" target="_blank">
+      <div class="idx">实验 04</div>
+      <h3>性状分离比的模拟实验</h3>
+      <div class="desc">模拟雌雄配子随机结合过程，统计并验证孟德尔一对相对性状杂交实验中F₂的性状分离比。</div>
+      <span class="tag purple">随机模拟</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🩺 选择性必修1《稳态与调节》</h2>
+  <div class="grid">
+    <a href="5thyroid_feedback_experiment.html" class="card" target="_blank">
+      <div class="idx">实验 05</div>
+      <h3>甲状腺激素负反馈调节 · 虚拟实验</h3>
+      <div class="desc">动态演示下丘脑—垂体—甲状腺分级调节轴，展示促甲状腺激素释放激素、TSH与甲状腺激素的负反馈关系。</div>
+      <span class="tag teal">流程演示</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🌿 选择性必修2《生物与环境》</h2>
+  <div class="grid">
+    <a href="6duck_locust_simulation.html" class="card" target="_blank">
+      <div class="idx">实验 06</div>
+      <h3>鸭—蝗虫种群动态 · 循环因果分析</h3>
+      <div class="desc">分析鸭与蝗虫种群的相互制约关系，理解循环因果关系在种群数量调节中的作用机制。</div>
+      <span class="tag">动态模拟</span>
+    </a>
+    <a href="7predator_prey_simulator.html" class="card" target="_blank">
+      <div class="idx">实验 07</div>
+      <h3>猞猁与雪兔种群数量变化模拟器</h3>
+      <div class="desc">基于捕食者-猎物模型，可视化猞猁与雪兔种群数量的周期性波动，探究影响种群数量变化的因素。</div>
+      <span class="tag">数学建模</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🔬 选择性必修3《生物技术与工程》</h2>
+  <div class="grid">
+    <a href="8protein_engineering_lab.html" class="card" target="_blank">
+      <div class="idx">实验 08</div>
+      <h3>蛋白质工程虚拟实验室</h3>
+      <div class="desc">以枯草杆菌蛋白酶热稳定性改造为例，展示蛋白质工程"结构预测→基因改造→功能验证"的核心流程。</div>
+      <span class="tag purple">流程演示</span>
+    </a>
+  </div>
+</div>
+
+<div class="footer">
+  <p><strong>赋能"设计者"：Trae驱动的高中生物互动模拟程序开发路径及其教学价值研究</strong> · 配套资源</p>
+  <p style="margin-top:6px">作者：冯海倩、任姬</p>
+</div>
+
+</div>
+</body>
+</html>

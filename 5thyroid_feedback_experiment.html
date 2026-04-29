@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="F&R">
+<title>甲状腺激素负反馈调节 · 虚拟实验</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--primary:#1a237e;--green:#2e7d32;--red:#c62828;--orange:#e65100}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:var(--bg);min-height:100vh;padding:16px}
+.container{max-width:1180px;margin:0 auto}
+.header{background:linear-gradient(135deg,#0d47a1,#1a237e);color:#fff;padding:20px 28px;border-radius:14px;text-align:center;margin-bottom:16px;box-shadow:0 4px 20px rgba(13,71,161,0.25)}
+.header h1{font-size:22px;margin-bottom:4px}
+.header .sub{font-size:13px;opacity:0.85}
+
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.dash-left{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);display:flex;flex-direction:column}
+.dash-left h3{text-align:center;color:#1a237e;font-size:15px;margin-bottom:6px;flex-shrink:0}
+.dash-left canvas{flex:1;display:block;width:100%;min-height:200px;background:#fafbff;border-radius:10px;border:1px solid #e8eaf6}
+.dash-legend{text-align:center;margin-top:4px;font-size:11px;color:#666;flex-shrink:0}
+
+.dash-right{display:flex;flex-direction:column;gap:8px}
+.gland-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fafafa;border-radius:10px;border-left:5px solid #ccc;transition:all 0.3s}
+.gland-row.hypo{border-left-color:#3f51b5}
+.gland-row.pit{border-left-color:#43a047}
+.gland-row.thy{border-left-color:#c62828}
+.gland-icon{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
+.gland-icon.hypo{background:#5c6bc0}
+.gland-icon.pit{background:#66bb6a}
+.gland-icon.thy{background:#ef5350}
+.gland-info{flex:1;min-width:0}
+.gland-name{font-weight:700;font-size:14px}
+.gland-hormone{font-size:11px;color:#888}
+.gland-level{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.level-bar-outer{width:100px;height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden}
+.level-bar-inner{height:100%;border-radius:5px;transition:width 0.3s,background 0.3s}
+.level-bar-inner.normal{background:#66bb6a}
+.level-bar-inner.warn{background:#ffa726}
+.level-bar-inner.danger{background:#ef5350}
+.level-val{font-weight:700;font-size:13px;width:36px;text-align:right}
+.trend-arrow{font-size:16px;width:20px;text-align:center}
+
+.th-big-meter{background:linear-gradient(135deg,#fafafa,#f5f5f5);border-radius:12px;padding:16px;text-align:center;border:2px solid #e0e0e0;flex:1;display:flex;flex-direction:column;justify-content:center}
+.th-big-meter h3{font-size:14px;color:#666;margin-bottom:4px}
+.th-circle{width:120px;height:120px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:background 0.5s,box-shadow 0.5s}
+.th-circle .th-value{font-size:36px;font-weight:800;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,0.2)}
+.th-circle .th-label{font-size:12px;color:rgba(255,255,255,0.9)}
+.th-status{font-weight:700;font-size:14px;padding:4px 12px;border-radius:12px;display:inline-block}
+
+.sim-controls{display:flex;justify-content:center;gap:16px;padding:12px;margin-bottom:14px;background:var(--card);border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.btn-sim{padding:14px 40px;border:none;border-radius:28px;cursor:pointer;font-size:16px;font-weight:700;min-width:180px;min-height:48px;transition:all 0.3s;letter-spacing:1px}
+.btn-sim:active{transform:scale(0.97)}
+.btn-play{background:linear-gradient(135deg,#e53935,#c62828);color:#fff;box-shadow:0 4px 16px rgba(229,57,53,0.4)}
+.btn-play:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(229,57,53,0.5)}
+.btn-play:disabled{background:#bdbdbd;color:#fff;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-reset{background:linear-gradient(135deg,#43a047,#2e7d32);color:#fff;box-shadow:0 4px 16px rgba(67,160,71,0.4)}
+.btn-reset:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(67,160,71,0.5)}
+
+.quiz-section{background:var(--card);border-radius:14px;padding:20px 24px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);transition:all 0.4s}
+.quiz-section.solved{border:2px solid #43a047}
+.quiz-section h3{font-size:16px;color:#1a237e;margin-bottom:12px}
+.quiz-section .q-text{font-size:14px;line-height:1.7;color:#3e2723;margin-bottom:12px}
+.quiz-section .q-text .hl{color:#c62828;font-weight:700}
+.quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.quiz-opt{display:flex;align-items:center;padding:10px 14px;background:#fff;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:all 0.25s;font-size:13px}
+.quiz-opt:hover{border-color:#1565c0;background:#e3f2fd}
+.quiz-opt.selected{border-color:#1565c0;background:#e3f2fd}
+.quiz-opt.correct-answer{border-color:#43a047;background:#e8f5e9}
+.quiz-opt.wrong-pick{border-color:#ef5350;background:#ffebee}
+.quiz-opt input{margin-right:10px;accent-color:#1565c0}
+.btn-check{padding:10px 28px;background:#1565c0;color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:15px;font-weight:600;transition:all 0.3s}
+.btn-check:hover{background:#0d47a1}
+.quiz-result{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;line-height:1.7;display:none;font-weight:600}
+.quiz-result.show{display:block}
+.quiz-result.right{background:#e8f5e9;color:#2e7d32;border:1px solid #66bb6a}
+.quiz-result.wrong{background:#ffebee;color:#c62828;border:1px solid #ef5350}
+
+.conclusion{background:var(--card);border-radius:14px;padding:20px 24px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.conclusion h3{font-size:16px;color:#1a237e;margin-bottom:12px}
+.conclusion p{font-size:14px;line-height:1.8;color:#1b5e20}
+.conclusion .textbook{background:#e8eaf6;border-radius:10px;padding:14px 18px;margin-top:12px;font-size:14px;line-height:1.7;color:#1a237e;border-left:4px solid #3f51b5}
+
+@media(max-width:768px){
+.dashboard{grid-template-columns:1fr}
+.quiz-options{grid-template-columns:1fr}
+.gland-level{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+<h1>探究甲状腺激素升高后的负反馈调节机制</h1>
+<div class="sub">人教版选择性必修1 · 第3章 体液调节</div>
+</div>
+
+<div class="dashboard" id="dashboard">
+<div class="dash-left" id="dashLeft">
+<h3>🧬 下丘脑—垂体—甲状腺轴 · 动态示意图</h3>
+<canvas id="axisCanvas"></canvas>
+<div class="dash-legend">
+<span style="color:#2e7d32;">━━ 分级调节（+  促进）</span>&nbsp;&nbsp;
+<span style="color:#c62828;">- - - 反馈调节（−  抑制）</span>&nbsp;&nbsp;
+<span style="color:#e65100;font-weight:bold;">模拟中动态变化</span>
+</div>
+</div>
+<div class="dash-right" id="dashRight">
+<div class="gland-row hypo">
+<div class="gland-icon hypo">下</div>
+<div class="gland-info"><div class="gland-name">下丘脑</div><div class="gland-hormone">分泌 TRH</div></div>
+<div class="gland-level">
+<div class="level-bar-outer"><div class="level-bar-inner normal" id="trhBar" style="width:50%"></div></div>
+<span class="level-val" id="trhVal">50</span><span class="trend-arrow" id="trhArrow"></span>
+</div></div>
+<div class="gland-row pit">
+<div class="gland-icon pit">垂</div>
+<div class="gland-info"><div class="gland-name">垂体</div><div class="gland-hormone">分泌 TSH</div></div>
+<div class="gland-level">
+<div class="level-bar-outer"><div class="level-bar-inner normal" id="tshBar" style="width:50%"></div></div>
+<span class="level-val" id="tshVal">50</span><span class="trend-arrow" id="tshArrow"></span>
+</div></div>
+<div class="gland-row thy">
+<div class="gland-icon thy">甲</div>
+<div class="gland-info"><div class="gland-name">甲状腺</div><div class="gland-hormone">分泌甲状腺激素（T₃/T₄）</div></div>
+<div class="gland-level">
+<div class="level-bar-outer"><div class="level-bar-inner warn" id="thBar" style="width:80%"></div></div>
+<span class="level-val" id="thVal">80</span><span class="trend-arrow" id="thArrow"></span>
+</div></div>
+<div class="th-big-meter">
+<h3>血液甲状腺激素水平</h3>
+<div class="th-circle" id="thCircle" style="background:#ff9800;box-shadow:0 0 24px rgba(255,152,0,0.4);">
+<span class="th-value" id="thBigVal">80</span><span class="th-label">相对水平</span>
+</div>
+<span class="th-status" id="thStatus" style="background:#fff3e0;color:#e65100;">⚠ 偏高（已升高）</span>
+</div>
+</div>
+</div>
+
+<div class="sim-controls">
+<button class="btn-sim btn-play" id="btnPlay">▶ 开始模拟</button>
+<button class="btn-sim btn-reset" id="btnReset">↺ 重置实验</button>
+</div>
+
+<div class="quiz-section" id="quizSection">
+<h3>📝 根据模拟结果，选择正确答案</h3>
+<div class="q-text">
+甲状腺激素的分泌受下丘脑—垂体—甲状腺轴的调节。
+当血液中甲状腺激素含量<span class="hl">升高</span>时，其调节过程是：
+</div>
+<div class="quiz-options">
+<label class="quiz-opt"><input type="radio" name="answer" value="A"> A. 促进下丘脑和垂体的活动，使甲状腺激素分泌增多</label>
+<label class="quiz-opt"><input type="radio" name="answer" value="B"> B. 抑制下丘脑和垂体的活动，使甲状腺激素分泌减少</label>
+<label class="quiz-opt"><input type="radio" name="answer" value="C"> C. 促进下丘脑活动，抑制垂体活动，使甲状腺激素分泌保持稳定</label>
+<label class="quiz-opt"><input type="radio" name="answer" value="D"> D. 抑制下丘脑活动，促进垂体活动，使甲状腺激素分泌保持稳定</label>
+</div>
+<button class="btn-check" id="btnCheck">✅ 提交答案</button>
+<div class="quiz-result" id="quizResult"></div>
+</div>
+
+<div class="conclusion">
+<h3>🔬 实验结论</h3>
+<p id="conclusionText">
+<strong>初始状态：</strong>下丘脑分泌TRH，促进垂体分泌TSH，TSH促进甲状腺分泌甲状腺激素。血液中甲状腺激素已升高至较高水平（相对值80）。
+</p>
+<div class="textbook">
+📖 <strong>人教版教材核心结论：</strong>血液中甲状腺激素含量升高 → <strong style="color:#c62828;">抑制</strong>下丘脑和垂体的活动 → TRH↓、TSH↓ → 甲状腺激素分泌<strong style="color:#2e7d32;">减少</strong>，恢复稳态。即<span style="color:#c62828;font-weight:700;">负反馈调节</span>机制。
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+var trh=50,tsh=50,th=80;
+var running=false,timerId=null,simMode=false,quizAnswered=false;
+var displayTrh=50,displayTsh=50,displayTh=80;
+var $trhBar=document.getElementById('trhBar'),$tshBar=document.getElementById('tshBar'),$thBar=document.getElementById('thBar');
+var $trhVal=document.getElementById('trhVal'),$tshVal=document.getElementById('tshVal'),$thVal=document.getElementById('thVal');
+var $trhArrow=document.getElementById('trhArrow'),$tshArrow=document.getElementById('tshArrow'),$thArrow=document.getElementById('thArrow');
+var $thCircle=document.getElementById('thCircle'),$thBigVal=document.getElementById('thBigVal'),$thStatus=document.getElementById('thStatus');
+var $conclusion=document.getElementById('conclusionText');
+var $btnPlay=document.getElementById('btnPlay'),$btnReset=document.getElementById('btnReset');
+var $quizSection=document.getElementById('quizSection'),$quizResult=document.getElementById('quizResult');
+
+function lerp(a,b,t){return a+(b-a)*t}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+
+function updateUI(){
+var aR=Math.round(trh),bR=Math.round(tsh),cR=Math.round(th);
+$trhBar.style.width=aR+'%';$tshBar.style.width=bR+'%';$thBar.style.width=cR+'%';
+$trhBar.className='level-bar-inner '+(aR<=45?'normal':aR<=65?'warn':'danger');
+$tshBar.className='level-bar-inner '+(bR<=45?'normal':bR<=65?'warn':'danger');
+$thBar.className='level-bar-inner '+(cR<=45?'normal':cR<=65?'warn':'danger');
+$trhVal.textContent=aR;$tshVal.textContent=bR;$thVal.textContent=cR;
+$thBigVal.textContent=cR;
+var bg,sh,txt,bg2,clr;
+if(cR<=45){bg='#66bb6a';sh='0 0 28px rgba(102,187,106,0.5)';txt='✅ 正常范围';bg2='#e8f5e9';clr='#2e7d32'}
+else if(cR<=65){bg='#ffa726';sh='0 0 28px rgba(255,167,38,0.5)';txt='⚠ 轻度偏高';bg2='#fff3e0';clr='#e65100'}
+else{bg='#ef5350';sh='0 0 28px rgba(239,83,80,0.5)';txt='🔴 明显偏高';bg2='#ffebee';clr='#c62828'}
+$thCircle.style.background=bg;$thCircle.style.boxShadow=sh;
+$thStatus.textContent=txt;$thStatus.style.background=bg2;$thStatus.style.color=clr;
+}
+function arrowHTML(p,c){return c>p+0.5?'<span style="color:#c62828;">↑</span>':c<p-0.5?'<span style="color:#2e7d32;">↓</span>':'<span style="color:#999;">→</span>'}
+
+function startSimulation(){
+if(running)return;
+running=true;simMode=true;quizAnswered=false;
+displayTrh=trh;displayTsh=tsh;displayTh=th;
+syncCanvasHeight();drawAxis();
+$btnPlay.disabled=true;$btnPlay.textContent='▶ 模拟进行中...';
+$quizResult.classList.remove('show','right','wrong');$quizResult.innerHTML='';
+document.querySelectorAll('.quiz-opt').forEach(function(o){o.classList.remove('selected','correct-answer','wrong-pick')});
+document.querySelectorAll('input[name="answer"]').forEach(function(r){r.checked=false});
+$quizSection.classList.remove('solved');
+
+var trhTarget=25,tshTarget=20;
+var steps=0,maxSteps=60;
+
+timerId=setInterval(function(){
+steps++;
+var pTrh=trh,pTsh=tsh,pTh=th;
+trh+=(trhTarget-trh)*0.08;trh=clamp(trh,5,98);
+tsh+=(tshTarget-tsh)*0.08;tsh=clamp(tsh,3,98);
+var thT=tsh>60?90:tsh>40?55:tsh>20?38:25;
+th+=(thT-th)*0.06;th=clamp(th,10,98);
+displayTrh=lerp(displayTrh,trh,0.35);displayTsh=lerp(displayTsh,tsh,0.35);displayTh=lerp(displayTh,th,0.35);
+$trhArrow.innerHTML=arrowHTML(pTrh,trh);$tshArrow.innerHTML=arrowHTML(pTsh,tsh);$thArrow.innerHTML=arrowHTML(pTh,th);
+updateUI();drawAxis();
+
+var converged=(Math.abs(trh-trhTarget)<1.8&&Math.abs(tsh-tshTarget)<1.8&&Math.abs(th-thT)<1.8)||steps>=maxSteps;
+if(converged){
+clearInterval(timerId);timerId=null;running=false;
+$trhArrow.innerHTML='';$tshArrow.innerHTML='';$thArrow.innerHTML='';
+simMode=false;displayTrh=trh;displayTsh=tsh;displayTh=th;drawAxis();
+$btnPlay.disabled=true;$btnPlay.textContent='✔ 模拟完成';
+updateUI();
+$conclusion.innerHTML='<strong>模拟结果：</strong>甲状腺激素升高后 → <span style="color:#c62828;font-weight:700;">抑制</span>下丘脑和垂体 → TRH↓（50→'+Math.round(trh)+'）、TSH↓（50→'+Math.round(tsh)+'）→ 甲状腺激素分泌随之<span style="color:#2e7d32;font-weight:700;">减少</span>（80→'+Math.round(th)+'），恢复稳态。这就是<strong>负反馈调节</strong>机制。';
+}
+},200);
+}
+
+function resetAll(){
+if(timerId){clearInterval(timerId);timerId=null}
+running=false;simMode=false;quizAnswered=false;
+trh=50;tsh=50;th=80;displayTrh=50;displayTsh=50;displayTh=80;
+$trhArrow.innerHTML='';$tshArrow.innerHTML='';$thArrow.innerHTML='';
+$btnPlay.disabled=false;$btnPlay.textContent='▶ 开始模拟';
+$conclusion.innerHTML='<strong>初始状态：</strong>下丘脑分泌TRH，促进垂体分泌TSH，TSH促进甲状腺分泌甲状腺激素。血液中甲状腺激素已升高至较高水平（相对值80）。';
+$quizResult.classList.remove('show','right','wrong');$quizResult.innerHTML='';
+document.querySelectorAll('.quiz-opt').forEach(function(o){o.classList.remove('selected','correct-answer','wrong-pick')});
+document.querySelectorAll('input[name="answer"]').forEach(function(r){r.checked=false});
+$quizSection.classList.remove('solved');
+syncCanvasHeight();updateUI();drawAxis();
+}
+
+function handleCheck(){
+if(running||simMode){return}
+var selected=document.querySelector('input[name="answer"]:checked');
+if(!selected){$quizResult.textContent='⚠ 请先选择一个选项！';$quizResult.className='quiz-result show wrong';return}
+var answer=selected.value;
+var isRight=(answer==='B');
+quizAnswered=true;
+$quizSection.classList.add('solved');
+
+document.querySelectorAll('.quiz-opt').forEach(function(o){
+o.classList.remove('selected');
+var input=o.querySelector('input');
+if(input&&input.value==='B')o.classList.add('correct-answer');
+if(input&&input.value===answer&&answer!=='B')o.classList.add('wrong-pick');
+});
+
+if(isRight){
+$quizResult.innerHTML='✅ <strong>回答正确！</strong><br>甲状腺激素升高时，通过<strong>负反馈</strong>抑制下丘脑和垂体，使TRH和TSH分泌减少，甲状腺激素分泌随之减少，恢复稳态。';
+$quizResult.className='quiz-result show right';
+}else{
+$quizResult.innerHTML='❌ <strong>回答错误。</strong>正确答案是 <strong>B</strong>。<br>甲状腺激素升高会<strong>抑制</strong>（而非促进）下丘脑和垂体，使甲状腺激素分泌<strong>减少</strong>（而非增多或稳定）。请重新观察模拟过程。';
+$quizResult.className='quiz-result show wrong';
+}
+}
+
+function syncCanvasHeight(){
+var right=document.getElementById('dashRight');
+var canvas=document.getElementById('axisCanvas');
+var topH=document.getElementById('dashLeft').querySelector('h3').offsetHeight;
+var legH=document.querySelector('.dash-legend').offsetHeight;
+var pad=24;
+var targetH=right.offsetHeight-topH-legH-pad;
+canvas.style.height=Math.max(260,targetH)+'px';
+}
+
+// ========== Canvas ==========
+var axCanvas,axCtx,axW,axH;
+var pulseAnimId=null;
+
+function initAxis(){
+axCanvas=document.getElementById('axisCanvas');axCtx=axCanvas.getContext('2d');
+syncCanvasHeight();resizeAxis();drawAxis();
+window.addEventListener('resize',function(){syncCanvasHeight();resizeAxis();drawAxis();});
+startPulseLoop();
+}
+function resizeAxis(){
+var w=axCanvas.offsetWidth,h=axCanvas.offsetHeight;
+var d=window.devicePixelRatio||1;
+axCanvas.width=w*d;axCanvas.height=h*d;
+axCtx.setTransform(1,0,0,1,0,0);axCtx.scale(d,d);
+axW=w;axH=h;
+}
+function startPulseLoop(){
+if(pulseAnimId)cancelAnimationFrame(pulseAnimId);
+function loop(){pulseAnimId=requestAnimationFrame(loop);if(running)drawAxis();}
+pulseAnimId=requestAnimationFrame(loop);
+}
+function rrect(ctx,x,y,w,h,r){
+r=Math.min(r,w/2,h/2);ctx.beginPath();
+ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);
+ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+function drawLevelMeter(ctx,x,y,w,h,val,color){
+var rx=4;
+ctx.fillStyle='rgba(0,0,0,0.08)';rrect(ctx,x,y,w,h,rx);ctx.fill();
+var vw=Math.max(h,w*Math.min(1,val/100));
+ctx.fillStyle=color;rrect(ctx,x,y,vw,h,rx);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=1;rrect(ctx,x,y,w,h,rx);ctx.stroke();
+}
+function levelColor(v){return v<=45?'#66bb6a':v<=65?'#ffa726':'#ef5350'}
+
+function drawStraightArrow(ctx,x1,y1,x2,y2,lw,color,dash){
+ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.setLineDash(dash);
+ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([]);
+var a=Math.atan2(y2-y1,x2-x1),L=Math.max(8,Math.min(14,lw*2.2));
+ctx.beginPath();ctx.moveTo(x2,y2);
+ctx.lineTo(x2-L*Math.cos(a-Math.PI/7),y2-L*Math.sin(a-Math.PI/7));
+ctx.lineTo(x2-L*Math.cos(a+Math.PI/7),y2-L*Math.sin(a+Math.PI/7));
+ctx.closePath();ctx.fillStyle=color;ctx.fill();
+}
+
+function drawAxis(){
+var ctx=axCtx;ctx.clearRect(0,0,axW,axH);
+var mode=simMode;
+var t=performance.now()/1000;
+var dTrh=displayTrh,dTsh=displayTsh,dTh=displayTh;
+
+var cx=axW/2;
+var hyY=axH*0.16,piY=axH*0.44,thY=axH*0.72;
+var rx=[66,54,60],ry=[30,24,28];
+
+ctx.fillStyle='#c8e6c9';ctx.fillRect(10,8,60,20);
+ctx.fillStyle='#2e7d32';ctx.font='bold 10px "Microsoft YaHei","PingFang SC",sans-serif';ctx.textAlign='center';
+ctx.fillText('分级调节',40,22);
+ctx.fillStyle='rgba(255,205,210,0.8)';ctx.fillRect(78,8,60,20);
+ctx.fillStyle='#c62828';ctx.fillText('反馈调节',108,22);
+
+var orgs=[
+{x:cx,y:hyY,rx:rx[0],ry:ry[0],baseFill:'#e8eaf6',stroke:'#3f51b5',name:'下丘脑',level:dTrh},
+{x:cx,y:piY,rx:rx[1],ry:ry[1],baseFill:'#e8f5e9',stroke:'#43a047',name:'垂  体',level:dTsh},
+{x:cx,y:thY,rx:rx[2],ry:ry[2],baseFill:'#ffebee',stroke:'#c62828',name:'甲状腺',level:dTh}
+];
+orgs.forEach(function(o){
+var lvl=o.level;
+var intensity=clamp(0.5+(lvl-50)/100,0.35,1);
+var pulse=1;
+if(mode&&lvl>55)pulse=1+0.06*Math.sin(t*4+o.y*0.02);
+var r=o.rx*pulse,ry2=o.ry*pulse;
+var glowAlpha=intensity*0.35;
+if(mode&&o===orgs[2])glowAlpha=0.55+0.2*Math.sin(t*3);
+ctx.shadowColor=o.stroke;ctx.shadowBlur=glowAlpha>0.15?12*glowAlpha*2:0;
+ctx.fillStyle=o.baseFill;ctx.strokeStyle=o.stroke;
+ctx.lineWidth=2.2+intensity*2.5;ctx.setLineDash([]);
+ctx.beginPath();ctx.ellipse(o.x,o.y,r,ry2,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+ctx.shadowColor='transparent';ctx.shadowBlur=0;
+ctx.fillStyle=o.stroke;ctx.textAlign='center';
+ctx.font='bold 15px "Microsoft YaHei","PingFang SC",sans-serif';ctx.fillText(o.name,o.x,o.y+5);
+var mx=o.x+o.rx+14,my=o.y-8,mw=Math.max(32,axW*0.06),mh=14;
+drawLevelMeter(ctx,mx,my,mw,mh,lvl,levelColor(lvl));
+ctx.fillStyle='#333';ctx.font='bold 11px "Microsoft YaHei","PingFang SC",sans-serif';ctx.textAlign='left';
+ctx.fillText(Math.round(lvl),mx+mw+6,my+11);
+});
+
+var stimW=3,stimA=1;
+if(mode){stimW=1.8+0.7*(1-dTrh/50);stimA=0.25+0.3*(1-dTrh/50);stimW=clamp(stimW,1.2,6.5);stimA=clamp(stimA,0.2,1);}
+drawStraightArrow(ctx,cx,hyY+ry[0],cx,piY-ry[1],stimW,'rgba(46,125,50,'+stimA+')',[]);
+ctx.fillStyle='rgba(46,125,50,'+stimA+')';
+ctx.font='bold 13px "Microsoft YaHei","PingFang SC",sans-serif';ctx.textAlign='center';
+ctx.fillText('TRH （+）',cx+48,(hyY+piY)/2-2);
+drawStraightArrow(ctx,cx,piY+ry[1],cx,thY-ry[2],stimW,'rgba(46,125,50,'+stimA+')',[]);
+ctx.fillText('TSH （+）',cx-48,(piY+thY)/2-2);
+
+var fbW=2.5,fbA=0.55;
+if(mode){fbW=3+3*(dTh-25)/60;fbA=0.5+0.5*(dTh-25)/60;fbW=clamp(fbW,1.2,6.5);fbA=clamp(fbA,0.2,1);}
+var fbPulse=1;if(mode)fbPulse=1+0.1*Math.sin(t*6);
+var fbD=[8,5];
+
+var hxS=cx-rx[2]*0.55,hyS=thY-ry[2]*0.3;
+var hxE=cx-rx[0]*0.55,hyE=hyY+ry[0]*0.3;
+var hxMid=hxS-axW*0.12;
+drawStraightArrow(ctx,hxS,hyS,hxMid,hyS,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+drawStraightArrow(ctx,hxMid,hyS,hxMid,hyE,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+drawStraightArrow(ctx,hxMid,hyE,hxE,hyE,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+
+var pxS=cx+rx[2]*0.55,pyS=thY-ry[2]*0.3;
+var pxE=cx+rx[1]*0.55,pyE=piY+ry[1]*0.3;
+var pxMid=pxS+axW*0.12;
+drawStraightArrow(ctx,pxS,pyS,pxMid,pyS,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+drawStraightArrow(ctx,pxMid,pyS,pxMid,pyE,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+drawStraightArrow(ctx,pxMid,pyE,pxE,pyE,fbW*fbPulse,'rgba(198,40,40,'+fbA+')',fbD);
+
+ctx.fillStyle='rgba(198,40,40,'+fbA+')';
+ctx.font='bold 13px "Microsoft YaHei","PingFang SC",sans-serif';
+ctx.textAlign='right';ctx.fillText('（−）',hxMid-8,(hyS+hyE)/2+5);
+ctx.textAlign='left';ctx.fillText('（−）',pxMid+8,(pyS+pyE)/2+5);
+
+var phaseText='',phaseColor='#666',phaseBg='rgba(255,255,255,0.85)';
+if(mode){
+var trhR=Math.round(dTrh),tshR=Math.round(dTsh),thR=Math.round(dTh);
+if(trhR>38){phaseText='① 甲状腺激素升高 → 首先抑制下丘脑 → TRH↓ （'+trhR+'）';phaseColor='#c62828'}
+else if(tshR>28){phaseText='② TRH减少 → 垂体受抑制 → TSH↓ （'+tshR+'）';phaseColor='#e65100'}
+else{phaseText='③ TSH减少 → 甲状腺激素分泌↓ （'+thR+'）→ 恢复稳态';phaseColor='#2e7d32'}
+}
+if(phaseText){
+ctx.fillStyle=phaseBg;
+var tw=ctx.measureText(phaseText).width;
+var bx=axW/2-tw/2-16,by=axH-32,bw=tw+32,bh=24;
+ctx.fillRect(bx,by,bw,bh);
+ctx.strokeStyle=phaseColor;ctx.lineWidth=1.5;
+ctx.strokeRect(bx,by,bw,bh);
+ctx.fillStyle=phaseColor;
+ctx.font='bold 12px "Microsoft YaHei","PingFang SC",sans-serif';ctx.textAlign='center';
+ctx.fillText(phaseText,axW/2,by+17);
+}
+ctx.textAlign='start';
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+updateUI();initAxis();
+document.getElementById('btnPlay').addEventListener('click',startSimulation);
+document.getElementById('btnReset').addEventListener('click',resetAll);
+document.getElementById('btnCheck').addEventListener('click',handleCheck);
+document.querySelectorAll('.quiz-opt').forEach(function(o){
+o.addEventListener('click',function(){
+if(running||simMode)return;
+document.querySelectorAll('.quiz-opt').forEach(function(p){p.classList.remove('selected')});
+this.classList.add('selected');
+this.querySelector('input').checked=true;
+});
+});
+});
+})();
+</script>
+<div style="text-align:center;padding:12px;color:#999;font-size:14px;">作者：冯海倩、任姬</div>
+</body>
+</html>

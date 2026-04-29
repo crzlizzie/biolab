@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="F&R">
+    <title>高中生物：性状分离比的模拟实验</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .experiment-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .gamete-container {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            background-color: white;
+            text-align: center;
+        }
+        
+        .gamete-container h3 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .balls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin: 15px 0;
+            height: 70px;
+        }
+        
+        .ball {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+            position: relative;
+        }
+        
+        .ball:hover {
+            transform: scale(1.1);
+        }
+        
+        .ball-red {
+            background-color: #e74c3c;
+        }
+        
+        .ball-white {
+            background-color: #ecf0f1;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        /* 抓取动画 */
+        .ball.selected {
+            animation: grabBall 0.5s ease-out forwards;
+        }
+        
+        @keyframes grabBall {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3) translateY(-20px);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* 抓取出来的小球显示 */
+        .grabbed-ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 20px;
+            margin: 10px auto;
+            animation: showGrabbed 0.3s ease-out;
+        }
+        
+        @keyframes showGrabbed {
+            0% {
+                transform: scale(0);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .grabbed-ball.red {
+            background-color: #e74c3c;
+        }
+        
+        .grabbed-ball.white {
+            background-color: #ecf0f1;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .grabbed-ball-container {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .fertilization {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #e67e22;
+            border-radius: 5px;
+            background-color: white;
+            text-align: center;
+        }
+        
+        .fertilization h3 {
+            color: #e67e22;
+            margin-bottom: 10px;
+        }
+        
+        .result {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .stats {
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        /* 棋盘法样式 */
+        .punnett-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        
+        .punnett-square {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .punnett-table {
+            border-collapse: collapse;
+            border: 2px solid #6c7a89;
+            width: 100%;
+        }
+        
+        .punnett-table th, .punnett-table td {
+            border: 2px solid #6c7a89;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+        
+        .punnett-table th {
+            background-color: #e8eef3;
+            font-weight: bold;
+        }
+        
+        .gamete-label {
+            background-color: #ffffff;
+            color: #333333;
+        }
+        
+        .genotype-cell {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        
+        .genotype-cell.AA {
+            background-color: #f5e6c8;
+            color: #8b6914;
+        }
+        
+        .genotype-cell.Aa {
+            background-color: #d5e8d4;
+            color: #2d5a27;
+        }
+        
+        .genotype-cell.aa {
+            background-color: #f8ced8;
+            color: #8b2e5b;
+        }
+        
+        /* 统计结果样式 */
+        .stats-panel {
+            flex: 1;
+            min-width: 250px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #c0392b;
+        }
+        
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>高中生物：性状分离比的模拟实验</h1>
+        
+        <div class="section">
+            <h2>实验操作</h2>
+            <div class="experiment-area">
+                <!-- 雄性配子容器 -->
+                <div class="gamete-container">
+                    <h3>雄性配子</h3>
+                    <div class="balls" id="male-balls">
+                        <!-- 红色球代表 A，白色球代表 a -->
+                    </div>
+                    <div id="male-grabbed" class="grabbed-ball-container"></div>
+                    <p>抓取结果: <span id="male-selection">无</span></p>
+                </div>
+                
+                <!-- 雌性配子容器 -->
+                <div class="gamete-container">
+                    <h3>雌性配子</h3>
+                    <div class="balls" id="female-balls">
+                        <!-- 红色球代表 A，白色球代表 a -->
+                    </div>
+                    <div id="female-grabbed" class="grabbed-ball-container"></div>
+                    <p>抓取结果: <span id="female-selection">无</span></p>
+                </div>
+                
+                <!-- 受精结果 -->
+                <div class="fertilization">
+                    <h3>受精结果</h3>
+                    <div class="result">
+                        <p>基因型: <span id="genotype">--</span></p>
+                        <p>表现型: <span id="phenotype">--</span></p>
+                    </div>
+                    <div class="controls">
+                        <div class="control-row">
+                            <button class="btn-primary" onclick="simulateOne()">模拟一次</button>
+                            <button class="btn-secondary" onclick="simulateMultiple(10)">模拟10次</button>
+                            <button class="btn-secondary" onclick="simulateMultiple(100)">模拟100次</button>
+                        </div>
+                        <div class="control-row">
+                            <button class="btn-reset" onclick="resetExperiment()">重置实验</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>实验结果（棋盘法）</h2>
+            <div class="punnett-section">
+                <!-- 棋盘法表格 -->
+                <div class="punnett-square">
+                    <table class="punnett-table">
+                        <thead>
+                            <tr>
+                                <th class="gamete-label"></th>
+                                <th class="gamete-label">♂A</th>
+                                <th class="gamete-label">♂a</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th class="gamete-label">♀A</th>
+                                <td class="genotype-cell AA" id="cell-AA">AA<br><span id="count-AA">0</span></td>
+                                <td class="genotype-cell Aa" id="cell-Aa1">Aa<br><span id="count-Aa1">0</span></td>
+                            </tr>
+                            <tr>
+                                <th class="gamete-label">♀a</th>
+                                <td class="genotype-cell Aa" id="cell-Aa2">Aa<br><span id="count-Aa2">0</span></td>
+                                <td class="genotype-cell aa" id="cell-aa">aa<br><span id="count-aa">0</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 统计数据 -->
+                <div class="stats-panel">
+                    <h3>统计结果</h3>
+                    <p><strong>总计模拟次数：</strong><span id="count-total">0</span></p>
+                    <p><strong>基因型比例：</strong>AA:Aa:aa = <span id="genotype-ratio">0:0:0</span></p>
+                    <p><strong>表现型比例：</strong>显性:隐性 = <span id="phenotype-ratio">0:0</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section instructions">
+            <h3>实验步骤</h3>
+            <ol>
+                <li>点击「模拟一次」按钮，系统会从雌雄配子容器中各随机选择一个小球</li>
+                <li>观察受精结果，记录基因型和表现型</li>
+                <li>点击「模拟10次」或「模拟100次」按钮，进行多次模拟</li>
+                <li>观察统计结果，分析基因型和表现型比例</li>
+                <li>点击「重置实验」按钮，可重新开始实验</li>
+            </ol>
+            <h3>实验注意事项</h3>
+            <ul>
+                <li>实验次数越多，结果越接近理论值（基因型比例 1:2:1，表现型比例 3:1）</li>
+                <li>每次模拟都是随机的，不同次实验的结果可能会有所不同</li>
+                <li>通过多次模拟，可以更好地理解概率在遗传规律中的作用</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        // 实验数据（棋盘法需要分别记录两种Aa组合）
+        let data = {
+            AA: 0,
+            Aa1: 0,  // ♀A + ♂a
+            Aa2: 0,  // ♀a + ♂A
+            aa: 0
+        };
+        
+        // 初始化配子容器
+        function initGameteContainers() {
+            const maleContainer = document.getElementById('male-balls');
+            const femaleContainer = document.getElementById('female-balls');
+            
+            // 清空容器
+            maleContainer.innerHTML = '';
+            femaleContainer.innerHTML = '';
+            
+            // 添加小球（各10个红色和白色）
+            for (let i = 0; i < 10; i++) {
+                const redBall = document.createElement('div');
+                redBall.className = 'ball ball-red';
+                redBall.textContent = 'A';
+                redBall.dataset.type = 'A';
+                maleContainer.appendChild(redBall);
+                
+                const whiteBall = document.createElement('div');
+                whiteBall.className = 'ball ball-white';
+                whiteBall.textContent = 'a';
+                whiteBall.dataset.type = 'a';
+                maleContainer.appendChild(whiteBall);
+            }
+            
+            // 雌性配子容器同样添加
+            for (let i = 0; i < 10; i++) {
+                const redBall = document.createElement('div');
+                redBall.className = 'ball ball-red';
+                redBall.textContent = 'A';
+                redBall.dataset.type = 'A';
+                femaleContainer.appendChild(redBall);
+                
+                const whiteBall = document.createElement('div');
+                whiteBall.className = 'ball ball-white';
+                whiteBall.textContent = 'a';
+                whiteBall.dataset.type = 'a';
+                femaleContainer.appendChild(whiteBall);
+            }
+        }
+        
+        // 随机选择一个配子并显示抓取动画
+        function grabGamete(containerId, grabbedId) {
+            const container = document.getElementById(containerId);
+            const balls = container.getElementsByClassName('ball');
+            const grabbedContainer = document.getElementById(grabbedId);
+            
+            // 随机选择一个小球
+            const randomIndex = Math.floor(Math.random() * balls.length);
+            const selectedBall = balls[randomIndex];
+            const gameteType = selectedBall.dataset.type;
+            
+            // 添加选中动画
+            selectedBall.classList.add('selected');
+            
+            // 1秒后移除动画并显示抓取的小球
+            setTimeout(() => {
+                selectedBall.classList.remove('selected');
+                
+                // 创建抓取的小球显示
+                grabbedContainer.innerHTML = '';
+                const grabbedBall = document.createElement('div');
+                grabbedBall.className = 'grabbed-ball ' + (gameteType === 'A' ? 'red' : 'white');
+                grabbedBall.textContent = gameteType;
+                grabbedContainer.appendChild(grabbedBall);
+            }, 500);
+            
+            return gameteType;
+        }
+        
+        // 模拟一次受精
+        function simulateOne() {
+            // 清空之前的抓取显示
+            document.getElementById('male-grabbed').innerHTML = '';
+            document.getElementById('female-grabbed').innerHTML = '';
+            
+            // 抓取配子（带动画）
+            const maleGamete = grabGamete('male-balls', 'male-grabbed');
+            const femaleGamete = grabGamete('female-balls', 'female-grabbed');
+            
+            // 更新选择显示
+            document.getElementById('male-selection').textContent = maleGamete;
+            document.getElementById('female-selection').textContent = femaleGamete;
+            
+            // 计算基因型和表现型（根据棋盘法位置）
+            let genotype, phenotype;
+            if (maleGamete === 'A' && femaleGamete === 'A') {
+                genotype = 'AA';
+                phenotype = '显性';
+                data.AA++;
+            } else if (femaleGamete === 'A' && maleGamete === 'a') {
+                genotype = 'Aa';
+                phenotype = '显性';
+                data.Aa1++;
+            } else if (femaleGamete === 'a' && maleGamete === 'A') {
+                genotype = 'Aa';
+                phenotype = '显性';
+                data.Aa2++;
+            } else {
+                genotype = 'aa';
+                phenotype = '隐性';
+                data.aa++;
+            }
+            
+            // 更新结果显示
+            document.getElementById('genotype').textContent = genotype;
+            document.getElementById('phenotype').textContent = phenotype;
+            
+            // 更新统计数据
+            updateStats();
+        }
+        
+        // 模拟多次受精
+        function simulateMultiple(times) {
+            let count = 0;
+            const interval = setInterval(() => {
+                simulateOne();
+                count++;
+                if (count >= times) {
+                    clearInterval(interval);
+                }
+            }, 300);
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            const total = data.AA + data.Aa1 + data.Aa2 + data.aa;
+            const totalAa = data.Aa1 + data.Aa2;
+            
+            // 更新棋盘法各单元格计数
+            document.getElementById('count-AA').textContent = data.AA;
+            document.getElementById('count-Aa1').textContent = data.Aa1;
+            document.getElementById('count-Aa2').textContent = data.Aa2;
+            document.getElementById('count-aa').textContent = data.aa;
+            document.getElementById('count-total').textContent = total;
+            
+            if (total > 0) {
+                // 更新基因型比例
+                document.getElementById('genotype-ratio').textContent = data.AA + ':' + totalAa + ':' + data.aa;
+                
+                // 更新表现型比例
+                const dominant = data.AA + totalAa;
+                const recessive = data.aa;
+                document.getElementById('phenotype-ratio').textContent = dominant + ':' + recessive;
+            } else {
+                document.getElementById('genotype-ratio').textContent = '0:0:0';
+                document.getElementById('phenotype-ratio').textContent = '0:0';
+            }
+        }
+        
+        // 重置实验
+        function resetExperiment() {
+            data = {
+                AA: 0,
+                Aa1: 0,
+                Aa2: 0,
+                aa: 0
+            };
+            
+            document.getElementById('male-selection').textContent = '无';
+            document.getElementById('female-selection').textContent = '无';
+            document.getElementById('genotype').textContent = '--';
+            document.getElementById('phenotype').textContent = '--';
+            
+            // 清空抓取的小球显示
+            document.getElementById('male-grabbed').innerHTML = '';
+            document.getElementById('female-grabbed').innerHTML = '';
+            
+            updateStats();
+        }
+        
+        // 初始化实验
+        window.onload = function() {
+            initGameteContainers();
+        };
+    </script>
+<div style="text-align:center;padding:12px;color:#999;font-size:14px;">作者：冯海倩、任姬</div>
+</body>
+</html>

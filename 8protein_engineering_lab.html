@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="F&R">
+<title>蛋白质工程虚拟实验室 - 枯草杆菌蛋白酶热稳定性改造</title>
+<style>
+:root {
+  --bg-deep: #0a1a0f;
+  --bg-mid: #0f2d1a;
+  --bg-light: #153525;
+  --accent: #00e676;
+  --accent-dim: #009944;
+  --gold: #ffc107;
+  --red: #ff5252;
+  --blue: #448aff;
+  --text: #e0e8e0;
+  --text-dim: #a0b0a0;
+  --text-bright: #ffffff;
+  --panel-bg: rgba(10, 30, 18, 0.85);
+  --border: rgba(0, 230, 118, 0.3);
+  --border-strong: rgba(0, 230, 118, 0.6);
+  --card-bg: #0f2518;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Heiti SC", sans-serif;
+  background: linear-gradient(160deg, #071208 0%, #0a1f12 30%, #0f2d1a 60%, #0a1f12 100%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部标题栏 */
+.header {
+  text-align: center;
+  padding: 18px 24px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: headerScan 3s ease-in-out infinite;
+}
+
+@keyframes headerScan {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.header h1 {
+  font-size: 1.7em;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+}
+
+.header .subtitle {
+  font-size: 0.9em;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.step-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8em;
+  font-weight: 700;
+  background: var(--bg-mid);
+  border: 2px solid rgba(255,255,255,0.15);
+  color: var(--text-dim);
+  transition: all 0.4s;
+  position: relative;
+  cursor: default;
+}
+
+.step-dot.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(0, 230, 118, 0.5);
+  transform: scale(1.12);
+}
+
+.step-dot.done {
+  background: rgba(0, 150, 70, 0.5);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.step-connector {
+  width: 32px;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  align-self: center;
+  transition: background 0.4s;
+}
+
+.step-connector.done {
+  background: var(--accent-dim);
+}
+
+/* 主操作区 */
+.main-area {
+  flex: 1;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  position: relative;
+  min-height: 440px;
+  overflow: hidden;
+}
+
+/* 步骤内容 */
+.step-content { display: none; }
+.step-content.active { display: block; animation: fadeSlideIn 0.45s ease; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 底部步骤标签 */
+.step-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.step-tab {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px 8px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  user-select: none;
+  position: relative;
+}
+
+.step-tab:hover {
+  color: var(--accent);
+  background: rgba(0, 230, 118, 0.06);
+}
+
+.step-tab.active {
+  color: #fff;
+  background: rgba(0, 180, 80, 0.2);
+  border-color: var(--accent);
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.2);
+}
+
+.step-tab.done {
+  color: var(--accent);
+}
+
+.step-tab .check {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--accent);
+  font-size: 0.8em;
+}
+
+/* 步骤一：确定目标 */
+.goal-layout { display: flex; gap: 30px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+.goal-text {
+  flex: 1;
+  min-width: 300px;
+  max-width: 520px;
+}
+
+.goal-text h2 {
+  color: var(--accent);
+  font-size: 1.3em;
+  margin-bottom: 14px;
+}
+
+.goal-text p {
+  line-height: 1.8;
+  color: var(--text);
+  font-size: 1em;
+  text-indent: 2em;
+}
+
+.goal-text .highlight-num {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+/* 温度计动画 */
+.thermometer-container {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.thermo-scene {
+  position: relative;
+  width: 140px;
+  height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.thermo-tube {
+  width: 40px;
+  height: 180px;
+  background: linear-gradient(180deg, rgba(255,82,82,0.2), rgba(255,140,0,0.15));
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.thermo-mercury {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, #ff5252, #ff8c00);
+  border-radius: 0 0 17px 17px;
+  transition: height 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 20%;
+}
+
+.thermo-mercury.hot { height: 90%; }
+
+.thermo-bulb {
+  width: 50px; height: 50px;
+  background: radial-gradient(circle at 40% 40%, #ff6b6b, #c0392b);
+  border-radius: 50%;
+  margin-top: -4px;
+  border: 3px solid rgba(255,255,255,0.3);
+}
+
+.thermo-labels {
+  position: absolute;
+  right: -48px;
+  top: 10px;
+  font-size: 0.75em;
+  color: var(--text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.thermo-labels span { transition: color 0.3s; }
+.thermo-labels span.lit { color: var(--accent); font-weight: 700; }
+
+/* 酶分子展示 */
+.enzyme-display {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.enzyme-molecule {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.enzyme-molecule.native {
+  background: radial-gradient(circle at 40% 35%, #4caf50, #2e7d32);
+  box-shadow: 0 0 24px rgba(76,175,80,0.4);
+  color: #fff;
+}
+
+.enzyme-molecule.denatured {
+  background: radial-gradient(circle at 40% 35%, #ef5350, #b71c1c);
+  box-shadow: 0 0 20px rgba(239,83,80,0.5);
+  color: #ffcdd2;
+  transform: scale(1.1);
+  border-radius: 30% 70% 70% 30% / 30% 40% 60% 70%;
+}
+
+/* 箭头 */
+.arrow-down { font-size: 1.5em; color: var(--text-dim); text-align: center; margin: 4px 0; }
+
+/* 下一步按钮 */
+.btn-next {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 32px;
+  background: var(--accent-dim);
+  color: #fff;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 1px;
+}
+
+.btn-next:hover {
+  background: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 230, 118, 0.5);
+  transform: translateY(-2px);
+}
+
+/* 步骤二：分析结构 */
+.analysis-layout {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.protein-view {
+  flex: 0 0 420px;
+  min-width: 360px;
+}
+
+.protein-view h3 {
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 1.05em;
+  text-align: center;
+}
+
+.protein-view canvas {
+  display: block;
+  margin: 0 auto;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.replacement-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+.replacement-panel h3 {
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-size: 1.05em;
+}
+
+.current-aa {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.current-aa .pos { font-size: 0.85em; color: var(--text-dim); }
+.current-aa .name { font-size: 1.2em; color: #fff; font-weight: 700; }
+.current-aa .prop { font-size: 0.9em; color: #ff8a65; margin-top: 4px; }
+
+.aa-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.aa-card {
+  background: var(--card-bg);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.aa-card:hover {
+  border-color: var(--accent-dim);
+  background: rgba(0, 200, 80, 0.08);
+}
+
+.aa-card.selected {
+  border-color: var(--accent);
+  background: rgba(0, 230, 118, 0.15);
+  box-shadow: 0 0 16px rgba(0, 230, 118, 0.25);
+}
+
+.aa-card .aa-icon {
+  width: 46px; height: 46px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.9em;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.aa-card .aa-info { flex: 1; }
+.aa-card .aa-name { font-weight: 700; font-size: 1em; color: #fff; }
+.aa-card .aa-property { font-size: 0.85em; color: var(--text-dim); margin-top: 2px; }
+.aa-card .aa-effect { font-size: 0.82em; color: #81c784; margin-top: 3px; }
+.aa-card .aa-radio {
+  width: 22px; height: 22px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  align-self: center;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aa-card.selected .aa-radio {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(0,230,118,0.5);
+}
+
+.aa-card.selected .aa-radio::after {
+  content: '';
+  width: 8px; height: 8px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.btn-confirm {
+  display: inline-block;
+  padding: 10px 28px;
+  background: var(--accent-dim);
+  color: #fff;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-confirm:hover { background: var(--accent); box-shadow: 0 0 16px rgba(0,230,118,0.45); }
+.btn-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.confirm-feedback {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: rgba(0,200,80,0.12);
+  border: 1px solid var(--accent-dim);
+  border-radius: 8px;
+  color: var(--accent);
+  display: none;
+  font-size: 0.9em;
+}
+
+.confirm-feedback.show { display: block; animation: fadeSlideIn 0.4s ease; }
+
+/* 步骤三：改造基因 */
+.gene-layout {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.dna-panel {
+  flex: 2;
+  min-width: 500px;
+}
+
+.dna-panel h3 { color: var(--accent); margin-bottom: 8px; font-size: 1em; }
+
+.dna-seq {
+  font-family: "Courier New", "Consolas", monospace;
+  font-size: 1em;
+  letter-spacing: 3px;
+  line-height: 2;
+  padding: 14px 18px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  position: relative;
+}
+
+.dna-seq .mut-highlight {
+  background: rgba(255, 193, 7, 0.35);
+  padding: 2px 0;
+  border-radius: 3px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.dna-seq .mut-flash {
+  animation: codonFlash 0.8s ease-in-out 3;
+}
+
+@keyframes codonFlash {
+  0%, 100% { background: rgba(255,193,7,0.15); }
+  50% { background: rgba(255,193,7,0.7); color: #000; }
+}
+
+.dna-label {
+  font-size: 0.8em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.dna-note {
+  flex: 1;
+  min-width: 240px;
+}
+
+.dna-note .note-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.dna-note .note-card h4 { color: var(--gold); margin-bottom: 8px; }
+.dna-note .note-card p { line-height: 1.7; font-size: 0.9em; color: var(--text); }
+
+.mutation-formula {
+  font-family: "Courier New", monospace;
+  font-size: 1.15em;
+  text-align: center;
+  padding: 12px;
+  margin-top: 10px;
+  background: rgba(255,193,7,0.1);
+  border-radius: 8px;
+  color: var(--gold);
+}
+
+.mutation-formula .old { color: #ff5252; text-decoration: line-through; }
+.mutation-formula .arrow { color: var(--text-dim); margin: 0 8px; }
+.mutation-formula .new { color: var(--accent); font-weight: 700; }
+
+/* PCR动画区域 */
+.pcr-area {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.btn-pcr {
+  padding: 10px 28px;
+  background: #1565c0;
+  color: #fff;
+  border: 2px solid #42a5f5;
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-pcr:hover { background: #1976d2; box-shadow: 0 0 16px rgba(66,165,245,0.45); }
+.btn-pcr:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pcr-canvas-wrap {
+  margin-top: 12px;
+  display: none;
+}
+
+.pcr-canvas-wrap.show { display: block; }
+
+.pcr-canvas-wrap canvas {
+  display: block;
+  margin: 0 auto;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.pcr-complete {
+  display: none;
+  margin-top: 10px;
+  padding: 10px 18px;
+  background: rgba(0,200,80,0.12);
+  border: 1px solid var(--accent-dim);
+  border-radius: 8px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pcr-complete.show { display: inline-block; animation: fadeSlideIn 0.4s ease; }
+
+/* 步骤四：表达验证 */
+.expression-layout {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.fermenter-panel {
+  flex: 0 0 280px;
+  text-align: center;
+}
+
+.fermenter {
+  position: relative;
+  width: 180px;
+  height: 240px;
+  margin: 0 auto 14px;
+}
+
+.fermenter-body {
+  width: 160px;
+  height: 200px;
+  background: rgba(30,60,40,0.6);
+  border: 3px solid rgba(255,255,255,0.25);
+  border-radius: 20px 20px 40px 40px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.fermenter-liquid {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, rgba(139,195,74,0.5), rgba(139,195,74,0.2));
+  border-radius: 0 0 37px 37px;
+  transition: height 0.1s linear;
+  height: 20%;
+}
+
+.fermenter-liquid.filling {
+  background: linear-gradient(180deg, rgba(200,230,100,0.7), rgba(139,195,74,0.4));
+}
+
+.fermenter-liquid.expressing {
+  background: linear-gradient(180deg, rgba(129,212,250,0.5), rgba(0,200,80,0.3));
+  animation: liquidGlow 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes liquidGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.4); }
+}
+
+.fermenter-top {
+  width: 100px;
+  height: 20px;
+  background: linear-gradient(180deg, #555, #333);
+  border-radius: 8px 8px 0 0;
+  margin: 0 auto;
+}
+
+.fermenter-bubbles {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  right: 20px;
+  height: 100px;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  animation: bubbleUp 2s ease-in infinite;
+}
+
+.bubble:nth-child(1) { left: 20%; animation-delay: 0s; }
+.bubble:nth-child(2) { left: 45%; animation-delay: 0.5s; }
+.bubble:nth-child(3) { left: 70%; animation-delay: 1.2s; }
+.bubble:nth-child(4) { left: 30%; animation-delay: 0.3s; width: 4px; height: 4px; }
+.bubble:nth-child(5) { left: 65%; animation-delay: 0.9s; width: 5px; height: 5px; }
+
+@keyframes bubbleUp {
+  0% { bottom: 0; opacity: 0; }
+  30% { opacity: 0.8; }
+  100% { bottom: 100%; opacity: 0; }
+}
+
+.btn-express {
+  padding: 10px 26px;
+  background: #e65100;
+  color: #fff;
+  border: 2px solid #ff9800;
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-express:hover { background: #ef6c00; box-shadow: 0 0 14px rgba(255,152,0,0.4); }
+.btn-express:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.expression-progress {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 5px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.expression-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  border-radius: 5px;
+  width: 0%;
+  transition: width 0.3s linear;
+}
+
+.comparison-panel {
+  flex: 1;
+  min-width: 320px;
+  display: none;
+}
+
+.comparison-panel.show { display: block; animation: fadeSlideIn 0.5s ease; }
+
+.comparison-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.compare-card {
+  flex: 1;
+  min-width: 220px;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.compare-card.original { border-color: rgba(255,82,82,0.4); }
+.compare-card.modified { border-color: rgba(0,230,118,0.5); }
+
+.compare-card h4 { margin-bottom: 8px; font-size: 1em; }
+.compare-card.original h4 { color: #ff5252; }
+.compare-card.modified h4 { color: var(--accent); }
+
+.compare-card .opt-temp { font-size: 0.9em; color: var(--text-dim); margin-bottom: 6px; }
+
+.activity-bar {
+  height: 24px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 6px;
+}
+
+.activity-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s ease;
+}
+
+.activity-bar-fill.low { background: linear-gradient(90deg, #ff5252, #ff8a65); }
+.activity-bar-fill.high { background: linear-gradient(90deg, #00c853, #00e676); }
+
+.activity-label {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  font-size: 0.85em;
+}
+
+.compare-card.original .activity-label { color: #ff5252; }
+.compare-card.modified .activity-label { color: var(--accent); }
+
+/* 柱状图 */
+.chart-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.chart-section h4 { color: var(--text-dim); font-size: 0.9em; margin-bottom: 10px; }
+
+.bar-chart {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 40px;
+  height: 160px;
+  padding: 10px;
+}
+
+.bar-group { text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+.bar {
+  width: 48px;
+  border-radius: 6px 6px 0 0;
+  transition: height 1.2s ease;
+  position: relative;
+}
+
+.bar-old { background: linear-gradient(180deg, #ff5252, #c62828); }
+.bar-new { background: linear-gradient(180deg, #00e676, #2e7d32); }
+
+.bar-val {
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+.bar-val.old { color: #ff5252; }
+.bar-val.new { color: var(--accent); }
+
+.bar-label { margin-top: 2px; font-size: 0.8em; color: var(--text-dim); }
+
+/* 步骤五：结果分析 */
+.report-panel {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.report-panel h2 { color: var(--accent); text-align: center; margin-bottom: 16px; }
+
+.report-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.report-card {
+  flex: 1;
+  min-width: 230px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.report-card .rc-title { color: var(--accent); font-weight: 700; margin-bottom: 6px; font-size: 0.9em; }
+.report-card .rc-content { font-size: 0.9em; line-height: 1.7; color: var(--text); }
+
+.report-card .rc-value {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 4px 0;
+}
+
+/* 选择题 */
+.quiz-section {
+  background: var(--card-bg);
+  border: 2px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 18px 22px;
+}
+
+.quiz-section h3 {
+  color: var(--gold);
+  margin-bottom: 14px;
+  text-align: center;
+  font-size: 1.05em;
+}
+
+.quiz-item {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.quiz-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.quiz-question {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+}
+
+.quiz-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quiz-opt {
+  padding: 8px 18px;
+  background: var(--bg-mid);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.88em;
+  transition: all 0.3s;
+  color: var(--text);
+}
+
+.quiz-opt:hover {
+  border-color: var(--accent-dim);
+  background: rgba(0,200,80,0.08);
+}
+
+.quiz-opt.selected { border-color: var(--blue); background: rgba(68,138,255,0.15); }
+.quiz-opt.correct { border-color: var(--accent); background: rgba(0,230,118,0.2); color: var(--accent); }
+.quiz-opt.wrong { border-color: #ff5252; background: rgba(255,82,82,0.15); color: #ff5252; }
+
+.quiz-feedback {
+  margin-top: 6px;
+  font-size: 0.85em;
+  display: none;
+}
+
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { color: var(--accent); }
+.quiz-feedback.wrong { color: #ff5252; }
+
+/* 响应式 */
+@media (max-width: 1024px) {
+  .analysis-layout { flex-direction: column; }
+  .protein-view { flex: none; width: 100%; min-width: auto; }
+  .gene-layout { flex-direction: column; }
+  .dna-panel { min-width: auto; }
+  .expression-layout { flex-direction: column; align-items: center; }
+  .fermenter-panel { flex: none; }
+  .comparison-cards { flex-direction: column; }
+  .report-cards { flex-direction: column; }
+  .goal-layout { flex-direction: column; }
+  .thermo-scene { margin: 0 auto; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 8px 10px; }
+  .header h1 { font-size: 1.3em; }
+  .main-area { padding: 14px 12px; }
+  .step-tab { font-size: 0.75em; padding: 8px 4px; }
+  .dna-seq { font-size: 0.75em; letter-spacing: 1.5px; }
+  .protein-view canvas { width: 100%; height: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- 顶部标题栏 -->
+  <div class="header">
+    <h1>🧬 蛋白质工程虚拟实验室</h1>
+    <div class="subtitle">改造枯草杆菌蛋白酶 · 提高热稳定性</div>
+  </div>
+
+  <!-- 步骤指示器 -->
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-connector" id="conn1"></div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-connector" id="conn2"></div>
+    <div class="step-dot" id="dot3">3</div>
+    <div class="step-connector" id="conn3"></div>
+    <div class="step-dot" id="dot4">4</div>
+    <div class="step-connector" id="conn4"></div>
+    <div class="step-dot" id="dot5">5</div>
+  </div>
+
+  <!-- 主操作区 -->
+  <div class="main-area">
+
+    <!-- 步骤一：确定目标 -->
+    <div class="step-content active" id="step1">
+      <div class="goal-layout">
+        <div class="goal-text">
+          <h2>🎯 实验目标</h2>
+          <p>
+            枯草杆菌蛋白酶在<span class="highlight-num">洗涤工业</span>中应用广泛，常用于洗衣粉等清洁产品中。
+            然而，该酶在高温条件下<span class="highlight-num">容易失活</span>，限制了其应用范围。
+          </p>
+          <p style="margin-top:12px;">
+            我们的目标是：通过蛋白质工程技术，提高其<span class="highlight-num">热稳定性</span>，
+            使其在<span class="highlight-num">60℃</span>条件下仍能保持<span class="highlight-num">80%以上</span>的酶活性。
+          </p>
+          <div style="text-align:right;">
+            <button class="btn-next" onclick="goToStep(2)">进入下一步 →</button>
+          </div>
+        </div>
+        <div class="thermometer-container">
+          <div class="thermo-scene">
+            <div class="thermo-labels">
+              <span id="tLabel60">60°C</span>
+              <span id="tLabel25">25°C</span>
+            </div>
+            <div class="thermo-tube">
+              <div class="thermo-mercury" id="thermoMercury"></div>
+            </div>
+            <div class="thermo-bulb"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-next" style="padding:6px 16px;font-size:0.85em;margin:0;" onclick="setTemp('normal')">常温</button>
+            <button class="btn-next" style="padding:6px 16px;font-size:0.85em;margin:0;" onclick="setTemp('hot')">升温60°C</button>
+          </div>
+          <div class="enzyme-display" style="margin-top:12px;">
+            <div class="enzyme-molecule native" id="enzymeMol">活性酶</div>
+            <div class="arrow-down" style="display:none;" id="degradeArrow">→</div>
+            <div class="enzyme-molecule denatured" id="enzymeDenatured" style="display:none;">变性酶</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 步骤二：分析结构 -->
+    <div class="step-content" id="step2">
+      <div class="analysis-layout">
+        <div class="protein-view">
+          <h3>枯草杆菌蛋白酶三维结构示意图</h3>
+          <canvas id="proteinCanvas" width="400" height="320"></canvas>
+          <div style="margin-top:6px;font-size:0.8em;color:var(--text-dim);text-align:center;">
+            <span style="display:inline-block;width:10px;height:10px;background:#ff5252;border-radius:50%;margin-right:4px;"></span> 第218位 Asn（关键位点）— 悬停查看详情
+          </div>
+        </div>
+        <div class="replacement-panel">
+          <h3>🔬 氨基酸替换方案设计</h3>
+          <div class="current-aa">
+            <div class="pos">第218位氨基酸</div>
+            <div class="name" id="currentAaName">天冬酰胺 (Asn)</div>
+            <div class="prop">特性：亲水性 — 位于酶分子表面</div>
+          </div>
+          <p style="font-size:0.85em;color:var(--text-dim);margin-bottom:8px;">选择替换氨基酸：</p>
+          <div class="aa-cards">
+            <div class="aa-card" onclick="selectAA('ser')" id="cardSer">
+              <div class="aa-icon" style="background:#42a5f5;">Ser</div>
+              <div class="aa-info">
+                <div class="aa-name">丝氨酸 (Ser)</div>
+                <div class="aa-property">亲水性 · 与Asn性质相近</div>
+                <div class="aa-effect">预期效果：热稳定性提升有限</div>
+              </div>
+              <div class="aa-radio"></div>
+            </div>
+            <div class="aa-card" onclick="selectAA('thr')" id="cardThr">
+              <div class="aa-icon" style="background:#ff9800;">Thr</div>
+              <div class="aa-info">
+                <div class="aa-name">苏氨酸 (Thr)</div>
+                <div class="aa-property">弱亲水性 · 含羟基</div>
+                <div class="aa-effect">预期效果：热稳定性略有改善</div>
+              </div>
+              <div class="aa-radio"></div>
+            </div>
+            <div class="aa-card" onclick="selectAA('ile')" id="cardIle">
+              <div class="aa-icon" style="background:#66bb6a;">Ile</div>
+              <div class="aa-info">
+                <div class="aa-name">异亮氨酸 (Ile)</div>
+                <div class="aa-property">强疏水性 · 支链氨基酸</div>
+                <div class="aa-effect">预期效果：热稳定性显著提升 ⭐推荐</div>
+              </div>
+              <div class="aa-radio"></div>
+            </div>
+          </div>
+          <button class="btn-confirm" id="btnConfirmAA" disabled onclick="confirmReplacement()">确认改造方案</button>
+          <div class="confirm-feedback" id="confirmFeedback">
+            ✅ 改造方案已确认：Asn218 → <span id="feedbackAAName"></span>，进入基因改造阶段
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 步骤三：改造基因 -->
+    <div class="step-content" id="step3">
+      <div class="gene-layout">
+        <div class="dna-panel">
+          <h3>📜 原始DNA序列（模板链）</h3>
+          <div class="dna-label">第218位密码子区域</div>
+          <div class="dna-seq" id="dnaOriginal">
+            ATG-GCT-AGC-CGT-<span class="mut-highlight" id="codonOrig">AAT</span>-GGC-TAC-TTG-ACC-CCG-CAG-GTT-GAA-ACC-CTG-AGC-GGT-TCC-CAG
+          </div>
+          <h3 style="margin-top:16px;">🧬 改造后DNA序列（模板链）</h3>
+          <div class="dna-label">突变位点已标注</div>
+          <div class="dna-seq" id="dnaModified">
+            ATG-GCT-AGC-CGT-<span class="mut-highlight" id="codonMod">---</span>-GGC-TAC-TTG-ACC-CCG-CAG-GTT-GAA-ACC-CTG-AGC-GGT-TCC-CAG
+          </div>
+        </div>
+        <div class="dna-note">
+          <div class="note-card">
+            <h4>🔧 定点突变技术</h4>
+            <p>通过设计含突变的引物，利用PCR技术在特定位点引入碱基变化，实现精准的密码子替换。</p>
+            <div class="mutation-formula" id="mutationFormula">
+              <span class="old">AAT</span><span class="arrow">→</span><span class="new">---</span>
+            </div>
+            <p style="margin-top:8px;font-size:0.85em;color:var(--text-dim);" id="mutationDesc">
+              请先在步骤二中确认氨基酸替换方案
+            </p>
+          </div>
+          <div class="pcr-area">
+            <button class="btn-pcr" id="btnPCR" disabled onclick="simulatePCR()">🧪 模拟PCR扩增</button>
+            <div class="pcr-canvas-wrap" id="pcrCanvasWrap">
+              <canvas id="pcrCanvas" width="520" height="140"></canvas>
+            </div>
+            <div class="pcr-complete" id="pcrComplete">✅ 基因改造完成，进入表达阶段</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 步骤四：表达验证 -->
+    <div class="step-content" id="step4">
+      <div class="expression-layout">
+        <div class="fermenter-panel">
+          <h3 style="color:var(--accent);margin-bottom:8px;">⚗️ 工程菌发酵表达</h3>
+          <div class="fermenter">
+            <div class="fermenter-top"></div>
+            <div class="fermenter-body">
+              <div class="fermenter-liquid" id="fermenterLiquid"></div>
+              <div class="fermenter-bubbles" id="bubbles" style="display:none;">
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+                <div class="bubble"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-express" id="btnExpress" onclick="startExpression()">▶ 开始表达</button>
+          <div class="expression-progress">
+            <div class="expression-progress-bar" id="expressionProgressBar"></div>
+          </div>
+          <p style="margin-top:6px;font-size:0.8em;color:var(--text-dim);" id="expressStatus">点击按钮开始蛋白表达</p>
+        </div>
+        <div class="comparison-panel" id="comparisonPanel">
+          <h3 style="color:var(--accent);margin-bottom:10px;text-align:center;">📊 酶活性对比</h3>
+          <div class="comparison-cards">
+            <div class="compare-card original">
+              <h4>原始酶（野生型）</h4>
+              <div class="opt-temp">最适温度：45℃</div>
+              <div style="margin-bottom:4px;font-size:0.85em;color:var(--text-dim);">60℃时活性：</div>
+              <div class="activity-bar">
+                <div class="activity-bar-fill low" id="origBar" style="width:0%;"></div>
+                <div class="activity-label" id="origLabel">0%</div>
+              </div>
+            </div>
+            <div class="compare-card modified">
+              <h4>改造酶（Asn218→<span id="modAANameCard">Ile</span>）</h4>
+              <div class="opt-temp">最适温度：58℃</div>
+              <div style="margin-bottom:4px;font-size:0.85em;color:var(--text-dim);">60℃时活性：</div>
+              <div class="activity-bar">
+                <div class="activity-bar-fill high" id="modBar" style="width:0%;"></div>
+                <div class="activity-label" id="modLabel">0%</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-section">
+            <h4>60℃条件下热稳定性对比</h4>
+            <div class="bar-chart">
+              <div class="bar-group">
+                <div class="bar bar-old" id="barOld" style="height:0px;"></div>
+                <div class="bar-val old" id="barOldVal">0%</div>
+                <div class="bar-label">原始酶</div>
+              </div>
+              <div class="bar-group">
+                <div class="bar bar-new" id="barNew" style="height:0px;"></div>
+                <div class="bar-val new" id="barNewVal">0%</div>
+                <div class="bar-label">改造酶</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 步骤五：结果分析 -->
+    <div class="step-content" id="step5">
+      <div class="report-panel">
+        <h2>📋 实验总结报告</h2>
+        <div class="report-cards">
+          <div class="report-card">
+            <div class="rc-title">🔬 改造方案</div>
+            <div class="rc-content" id="reportScheme">Asn218 → Ile（天冬酰胺替换为异亮氨酸）</div>
+          </div>
+          <div class="report-card">
+            <div class="rc-title">📐 原理分析</div>
+            <div class="rc-content">引入疏水性更强的氨基酸（异亮氨酸），增强了蛋白质内部的疏水相互作用，使三维结构更加紧凑，从而提高热稳定性。</div>
+          </div>
+          <div class="report-card">
+            <div class="rc-title">📈 成功指标</div>
+            <div class="rc-value">60℃活性：15% → 85%</div>
+            <div class="rc-content" style="color:var(--accent);">热稳定性提升约5.7倍</div>
+          </div>
+        </div>
+
+        <!-- 选择题 -->
+        <div class="quiz-section">
+          <h3>📝 实验报告 · 知识检测</h3>
+
+          <div class="quiz-item">
+            <div class="quiz-question">1. 蛋白质工程的核心步骤是？</div>
+            <div class="quiz-options">
+              <div class="quiz-opt" onclick="answerQuiz(1, 'A', this)">A. 直接改造蛋白质</div>
+              <div class="quiz-opt" onclick="answerQuiz(1, 'B', this)">B. 改造基因</div>
+              <div class="quiz-opt" onclick="answerQuiz(1, 'C', this)">C. 化学修饰</div>
+            </div>
+            <div class="quiz-feedback" id="quizFeedback1"></div>
+          </div>
+
+          <div class="quiz-item">
+            <div class="quiz-question">2. 本实验中替换氨基酸的主要目的是？</div>
+            <div class="quiz-options">
+              <div class="quiz-opt" onclick="answerQuiz(2, 'A', this)">A. 提高催化效率</div>
+              <div class="quiz-opt" onclick="answerQuiz(2, 'B', this)">B. 提高热稳定性</div>
+              <div class="quiz-opt" onclick="answerQuiz(2, 'C', this)">C. 改变底物特异性</div>
+            </div>
+            <div class="quiz-feedback" id="quizFeedback2"></div>
+          </div>
+
+          <div class="quiz-item">
+            <div class="quiz-question">3. 蛋白质工程中，定点突变直接改变的是？</div>
+            <div class="quiz-options">
+              <div class="quiz-opt" onclick="answerQuiz(3, 'A', this)">A. 蛋白质的空间结构</div>
+              <div class="quiz-opt" onclick="answerQuiz(3, 'B', this)">B. 基因中特定碱基序列</div>
+              <div class="quiz-opt" onclick="answerQuiz(3, 'C', this)">C. mRNA的碱基序列</div>
+            </div>
+            <div class="quiz-feedback" id="quizFeedback3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部步骤标签 -->
+  <div class="step-tabs">
+    <div class="step-tab active" id="tab1" onclick="goToStep(1)">步骤一<span class="check" id="check1"></span></div>
+    <div class="step-tab" id="tab2" onclick="goToStep(2)">步骤二<span class="check" id="check2"></span></div>
+    <div class="step-tab" id="tab3" onclick="goToStep(3)">步骤三<span class="check" id="check3"></span></div>
+    <div class="step-tab" id="tab4" onclick="goToStep(4)">步骤四<span class="check" id="check4"></span></div>
+    <div class="step-tab" id="tab5" onclick="goToStep(5)">步骤五<span class="check" id="check5"></span></div>
+  </div>
+</div>
+
+<script>
+/* ===== 全局状态管理 ===== */
+var state = {
+  currentStep: 1,
+  completedSteps: new Set(),
+  selectedAA: null,       /* 'ser' | 'thr' | 'ile' */
+  replacementConfirmed: false,
+  pcrDone: false,
+  expressionDone: false,
+  quizAnswered: {}
+};
+
+/* 氨基酸数据 */
+var aaData = {
+  ser: { name: '丝氨酸', code: 'Ser', codon: 'TCT', color: '#42a5f5', prop: '亲水性', full: '丝氨酸(Ser)' },
+  thr: { name: '苏氨酸', code: 'Thr', codon: 'ACT', color: '#ff9800', prop: '弱亲水性', full: '苏氨酸(Thr)' },
+  ile: { name: '异亮氨酸', code: 'Ile', codon: 'ATT', color: '#66bb6a', prop: '强疏水性', full: '异亮氨酸(Ile)' }
+};
+
+/* 原始Asn密码子 */
+var ORIGINAL_CODON = 'AAT';
+
+/* ===== 步骤导航 ===== */
+function goToStep(step) {
+  if (step < 1 || step > 5) return;
+  var prevStep = state.currentStep;
+
+  /* 点击前面的步骤：从该步骤重做，清除后续步骤的完成状态 */
+  if (step < prevStep) {
+    for (var i = step; i <= 5; i++) {
+      state.completedSteps.delete(i);
+    }
+    /* 重置相关状态 */
+    if (step <= 2) { state.selectedAA = null; state.replacementConfirmed = false; }
+    if (step <= 3) { state.pcrDone = false; }
+    if (step <= 4) { state.expressionDone = false; }
+    if (step <= 5) { state.quizAnswered = {}; }
+  }
+
+  /* 点击后面的步骤：默认前面的步骤都已完成 */
+  if (step > prevStep) {
+    for (var i = 1; i < step; i++) {
+      state.completedSteps.add(i);
+    }
+  }
+
+  state.currentStep = step;
+
+  /* 更新步骤内容显示 */
+  for (var i = 1; i <= 5; i++) {
+    var content = document.getElementById('step' + i);
+    if (content) content.classList.toggle('active', i === step);
+  }
+
+  /* 更新底部标签和顶部指示器 */
+  refreshStepUI();
+
+  /* 特殊初始化 */
+  if (step === 2) drawProtein();
+  if (step === 3) initGeneStep();
+  if (step === 4) initExpressionStep();
+  if (step === 5) initReportStep();
+}
+
+function refreshStepUI() {
+  var step = state.currentStep;
+  /* 更新底部标签 */
+  for (var i = 1; i <= 5; i++) {
+    var tab = document.getElementById('tab' + i);
+    if (tab) {
+      tab.classList.toggle('active', i === step);
+      if (state.completedSteps.has(i)) {
+        tab.classList.add('done');
+        document.getElementById('check' + i).textContent = ' ✓';
+      } else {
+        tab.classList.remove('done');
+        document.getElementById('check' + i).textContent = '';
+      }
+    }
+  }
+
+  /* 更新顶部指示器 */
+  for (var i = 1; i <= 5; i++) {
+    var dot = document.getElementById('dot' + i);
+    if (dot) {
+      dot.classList.remove('active', 'done');
+      if (i === step) dot.classList.add('active');
+      else if (state.completedSteps.has(i)) { dot.classList.add('done'); dot.textContent = '✓'; }
+      else dot.textContent = i;
+    }
+    if (i < 5) {
+      var conn = document.getElementById('conn' + i);
+      if (conn) conn.classList.toggle('done', state.completedSteps.has(i));
+    }
+  }
+}
+
+function markStepDone(step) {
+  state.completedSteps.add(step);
+  var dot = document.getElementById('dot' + step);
+  if (dot) { dot.classList.add('done'); dot.textContent = '✓'; }
+  if (step < 5) {
+    var conn = document.getElementById('conn' + (step));
+    if (conn) conn.classList.add('done');
+  }
+  var tab = document.getElementById('tab' + step);
+  if (tab) tab.classList.add('done');
+  var checkEl = document.getElementById('check' + step);
+  if (checkEl) checkEl.textContent = ' ✓';
+}
+
+/* ===== 步骤一：温度计动画 ===== */
+function setTemp(mode) {
+  var mercury = document.getElementById('thermoMercury');
+  var label60 = document.getElementById('tLabel60');
+  var label25 = document.getElementById('tLabel25');
+  var mol = document.getElementById('enzymeMol');
+  var denat = document.getElementById('enzymeDenatured');
+  var arrow = document.getElementById('degradeArrow');
+
+  if (mode === 'hot') {
+    mercury.classList.add('hot');
+    label60.classList.add('lit');
+    label25.classList.remove('lit');
+    /* 延迟显示变性效果 */
+    setTimeout(function() {
+      mol.className = 'enzyme-molecule denatured';
+      mol.textContent = '变性酶';
+      denat.style.display = 'flex';
+      arrow.style.display = 'block';
+    }, 1800);
+  } else {
+    mercury.classList.remove('hot');
+    label60.classList.remove('lit');
+    label25.classList.add('lit');
+    mol.className = 'enzyme-molecule native';
+    mol.textContent = '活性酶';
+    denat.style.display = 'none';
+    arrow.style.display = 'none';
+  }
+  markStepDone(1);
+}
+
+/* ===== 步骤二：蛋白质结构绘制 ===== */
+function drawProtein() {
+  var canvas = document.getElementById('proteinCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  /* 定义约20个氨基酸的坐标（模拟折叠链） */
+  var positions = [
+    {x: 40, y: 40}, {x: 75, y: 30}, {x: 110, y: 45}, {x: 130, y: 80},
+    {x: 100, y: 115}, {x: 60, y: 130}, {x: 35, y: 100}, {x: 50, y: 60},
+    {x: 85, y: 75}, {x: 120, y: 100}, {x: 155, y: 115}, {x: 190, y: 100},
+    {x: 220, y: 70}, {x: 250, y: 50}, {x: 280, y: 35}, {x: 315, y: 50},
+    {x: 340, y: 80}, {x: 310, y: 115}, {x: 270, y: 135}, {x: 240, y: 150}
+  ];
+
+  /* 关键位点在第11个（索引10），即第218位 */
+  var keyIndex = 10;
+
+  /* 选择氨基酸的颜色 */
+  var selectedColor = '#ff5252'; /* 默认红色代表Asn */
+  if (state.selectedAA && aaData[state.selectedAA]) {
+    selectedColor = aaData[state.selectedAA].color;
+  }
+  if (state.replacementConfirmed && state.selectedAA && aaData[state.selectedAA]) {
+    selectedColor = aaData[state.selectedAA].color;
+  }
+
+  /* 绘制连接线 */
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (var i = 0; i < positions.length; i++) {
+    if (i === 0) ctx.moveTo(positions[i].x, positions[i].y);
+    else ctx.lineTo(positions[i].x, positions[i].y);
+  }
+  ctx.stroke();
+
+  /* 绘制氨基酸圆形 */
+  for (var i = 0; i < positions.length; i++) {
+    var pos = positions[i];
+    var isKey = (i === keyIndex);
+    var radius = isKey ? 13 : 8;
+    var color = isKey ? selectedColor : 'rgba(139,195,74,0.7)';
+
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    if (isKey) {
+      /* 关键位点发光 */
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, radius + 3, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      /* 标签 */
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px "Microsoft YaHei"';
+      ctx.textAlign = 'center';
+      ctx.fillText('218', pos.x, pos.y + 4);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '7px "Microsoft YaHei"';
+      ctx.textAlign = 'center';
+      ctx.fillText(i + 208, pos.x, pos.y + 2.5);
+    }
+  }
+
+  /* 悬停检测数据存到canvas上 */
+  canvas._positions = positions;
+  canvas._keyIndex = keyIndex;
+}
+
+/* canvas鼠标悬停提示 */
+(function() {
+  var tooltipEl = null;
+  function getTooltip() {
+    if (!tooltipEl) {
+      tooltipEl = document.createElement('div');
+      tooltipEl.style.cssText = 'position:absolute;background:rgba(0,0,0,0.9);color:#fff;padding:8px 14px;border-radius:8px;font-size:0.82em;max-width:220px;pointer-events:none;z-index:100;line-height:1.5;border:1px solid rgba(0,230,118,0.4);display:none;';
+      document.body.appendChild(tooltipEl);
+    }
+    return tooltipEl;
+  }
+
+  document.addEventListener('mousemove', function(e) {
+    var canvas = document.getElementById('proteinCanvas');
+    if (!canvas || !canvas._positions) { getTooltip().style.display = 'none'; return; }
+    var rect = canvas.getBoundingClientRect();
+    var mx = e.clientX - rect.left;
+    var my = e.clientY - rect.top;
+    var keyIdx = canvas._keyIndex;
+    var kp = canvas._positions[keyIdx];
+    var dist = Math.sqrt((mx - kp.x) * (mx - kp.x) + (my - kp.y) * (my - kp.y));
+    if (dist < 16 && state.currentStep === 2) {
+      var tt = getTooltip();
+      var aaName = state.replacementConfirmed && state.selectedAA ? aaData[state.selectedAA].full : '天冬酰胺(Asn)';
+      tt.innerHTML = '📍 第218位<br><b>' + aaName + '</b><br><span style="color:#81c784;">该位点位于酶表面<br>替换为疏水性氨基酸<br>可能增强热稳定性</span>';
+      tt.style.left = (e.clientX + 16) + 'px';
+      tt.style.top = (e.clientY - 50) + 'px';
+      tt.style.display = 'block';
+    } else {
+      getTooltip().style.display = 'none';
+    }
+  });
+})();
+
+/* 选择氨基酸 */
+function selectAA(aa) {
+  state.selectedAA = aa;
+  /* 更新卡片选中状态 */
+  ['ser', 'thr', 'ile'].forEach(function(key) {
+    var card = document.getElementById('card' + key.charAt(0).toUpperCase() + key.slice(1));
+    if (card) card.classList.toggle('selected', key === aa);
+  });
+  /* 启用确认按钮 */
+  var btn = document.getElementById('btnConfirmAA');
+  if (btn) btn.disabled = false;
+  /* 更新蛋白质示意图 */
+  drawProtein();
+}
+
+/* 确认改造方案 */
+function confirmReplacement() {
+  if (!state.selectedAA) return;
+  state.replacementConfirmed = true;
+  var data = aaData[state.selectedAA];
+
+  /* 显示确认反馈 */
+  var fb = document.getElementById('confirmFeedback');
+  if (fb) fb.classList.add('show');
+  var fbName = document.getElementById('feedbackAAName');
+  if (fbName) fbName.textContent = data.full;
+
+  /* 更新当前氨基酸显示 */
+  var nameEl = document.getElementById('currentAaName');
+  if (nameEl) nameEl.textContent = data.full;
+
+  markStepDone(2);
+}
+
+/* ===== 步骤三：基因改造 ===== */
+function initGeneStep() {
+  if (!state.selectedAA || !state.replacementConfirmed) {
+    /* 未确认替换方案 */
+    var codonMod = document.getElementById('codonMod');
+    if (codonMod) codonMod.textContent = '---';
+    var mutNew = document.querySelector('#mutationFormula .new');
+    if (mutNew) mutNew.textContent = '---';
+    var mutDesc = document.getElementById('mutationDesc');
+    if (mutDesc) mutDesc.textContent = '请先在步骤二中确认氨基酸替换方案';
+    var btnPCR = document.getElementById('btnPCR');
+    if (btnPCR) btnPCR.disabled = true;
+    return;
+  }
+
+  var data = aaData[state.selectedAA];
+  var newCodon = data.codon;
+
+  /* 更新改造后DNA序列 */
+  var codonMod = document.getElementById('codonMod');
+  if (codonMod) {
+    codonMod.textContent = newCodon;
+    codonMod.classList.add('mut-flash');
+  }
+
+  /* 更新突变公式 */
+  var mutNew = document.querySelector('#mutationFormula .new');
+  if (mutNew) mutNew.textContent = newCodon;
+
+  var mutDesc = document.getElementById('mutationDesc');
+  if (mutDesc) {
+    mutDesc.textContent = '通过定点突变技术，将第218位密码子由' + ORIGINAL_CODON + '改为' + newCodon + '（' + data.name + '的密码子）';
+  }
+
+  /* 启用PCR按钮（如果还未做） */
+  if (!state.pcrDone) {
+    var btnPCR = document.getElementById('btnPCR');
+    if (btnPCR) btnPCR.disabled = false;
+  }
+}
+
+/* PCR动画 */
+var pcrAnimId = null;
+function simulatePCR() {
+  var btn = document.getElementById('btnPCR');
+  if (btn) btn.disabled = true;
+  var wrap = document.getElementById('pcrCanvasWrap');
+  if (wrap) wrap.classList.add('show');
+
+  var canvas = document.getElementById('pcrCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+
+  var phase = 0;       /* 0:双链, 1:分离中, 2:分离完成/引物结合, 3:延伸, 4:完成 */
+  var progress = 0;
+  var startTime = null;
+  var phaseDurations = [800, 1000, 800, 1200, 600]; /* 各阶段持续时间ms */
+
+  function drawPCR(t) {
+    if (!startTime) startTime = t;
+    var elapsed = t - startTime;
+
+    /* 判断当前阶段 */
+    var accumulated = 0;
+    for (var i = 0; i < phaseDurations.length; i++) {
+      if (elapsed < accumulated + phaseDurations[i]) {
+        phase = i;
+        progress = (elapsed - accumulated) / phaseDurations[i];
+        break;
+      }
+      accumulated += phaseDurations[i];
+      phase = 4;
+      progress = 1;
+    }
+
+    ctx.clearRect(0, 0, W, H);
+
+    /* 背景网格 */
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 0.5;
+    for (var gx = 0; gx < W; gx += 30) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (var gy = 0; gy < H; gy += 30) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+    var y1 = 40, y2 = 70, yNew1 = 85, yNew2 = 115;
+    var leftX = 40, rightX = 480;
+
+    /* 绘制原始双链 */
+    ctx.lineWidth = 3;
+    /* 上链 */
+    ctx.strokeStyle = '#448aff';
+    ctx.beginPath();
+    if (phase >= 1) {
+      var sep = progress * 20;
+      ctx.moveTo(leftX, y1 - sep);
+      ctx.lineTo(rightX, y1 - sep);
+    } else {
+      ctx.moveTo(leftX, y1);
+      ctx.lineTo(rightX, y1);
+    }
+    ctx.stroke();
+
+    /* 下链 */
+    ctx.strokeStyle = '#ff5252';
+    ctx.beginPath();
+    if (phase >= 1) {
+      var sep = progress * 20;
+      ctx.moveTo(leftX, y2 + sep);
+      ctx.lineTo(rightX, y2 + sep);
+    } else {
+      ctx.moveTo(leftX, y2);
+      ctx.lineTo(rightX, y2);
+    }
+    ctx.stroke();
+
+    /* 虚线连接（碱基对） */
+    if (phase < 2 || progress < 0.6) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 6]);
+      var baseY1 = y1 + (phase >= 1 ? -progress * 20 : 0);
+      var baseY2 = y2 + (phase >= 1 ? progress * 20 : 0);
+      for (var bx = 60; bx < rightX; bx += 35) {
+        ctx.beginPath();
+        ctx.moveTo(bx, baseY1);
+        ctx.lineTo(bx, baseY2);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+    }
+
+    /* 突变位点标记 */
+    var mutX = 230;
+    ctx.fillStyle = 'rgba(255,193,7,0.6)';
+    ctx.beginPath();
+    ctx.arc(mutX, y1 + (phase >= 1 ? -progress * 20 : 0), 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(mutX, y2 + (phase >= 1 ? progress * 20 : 0), 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* 引物结合（阶段2） */
+    if (phase >= 2) {
+      var primerProgress = phase === 2 ? progress : 1;
+      ctx.strokeStyle = '#00e676';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(mutX - 40 - primerProgress * 60, yNew1 - (phase >= 1 ? progress * 20 : 0));
+      ctx.lineTo(mutX - 40, yNew1 - (phase >= 1 ? progress * 20 : 0));
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ff9800';
+      ctx.beginPath();
+      ctx.moveTo(mutX + 40 + primerProgress * 60, yNew2 + (phase >= 1 ? progress * 20 : 0));
+      ctx.lineTo(mutX + 40, yNew2 + (phase >= 1 ? progress * 20 : 0));
+      ctx.stroke();
+    }
+
+    /* 新链合成（阶段3-4） */
+    if (phase >= 3) {
+      var synthProgress = phase === 3 ? progress : 1;
+      ctx.strokeStyle = '#00e676';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(mutX - 40, yNew1);
+      ctx.lineTo(mutX - 40 + synthProgress * (rightX - mutX + 40), yNew1);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = '#ff9800';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 3]);
+      ctx.beginPath();
+      ctx.moveTo(mutX + 40, yNew2);
+      ctx.lineTo(mutX + 40 - synthProgress * (mutX + 40 - leftX), yNew2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    /* 标签 */
+    ctx.fillStyle = '#fff';
+    ctx.font = '11px "Microsoft YaHei"';
+    ctx.textAlign = 'left';
+    ctx.fillText('原始模板链', 10, y1 - 6);
+    ctx.fillText('互补链', 10, y2 + 16);
+    if (phase >= 2) {
+      ctx.fillText('含突变引物 →', mutX - 110, yNew1 - 6);
+      ctx.fillText('含突变引物 →', mutX - 50, yNew2 + 16);
+    }
+
+    /* 阶段提示 */
+    var phaseLabels = ['双链DNA', '解链中...', '引物退火结合', '新链合成延伸', 'PCR完成 ✓'];
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = 'bold 12px "Microsoft YaHei"';
+    ctx.textAlign = 'center';
+    ctx.fillText(phaseLabels[phase], W / 2, H - 8);
+
+    if (phase < 4) {
+      pcrAnimId = requestAnimationFrame(drawPCR);
+    } else {
+      /* PCR完成 */
+      state.pcrDone = true;
+      var complete = document.getElementById('pcrComplete');
+      if (complete) complete.classList.add('show');
+      markStepDone(3);
+    }
+  }
+
+  if (pcrAnimId) cancelAnimationFrame(pcrAnimId);
+  startTime = null;
+  pcrAnimId = requestAnimationFrame(drawPCR);
+}
+
+/* ===== 步骤四：表达验证 ===== */
+function initExpressionStep() {
+  if (state.expressionDone) {
+    /* 已表达，恢复显示 */
+    var compPanel = document.getElementById('comparisonPanel');
+    if (compPanel) compPanel.classList.add('show');
+    animateBars();
+    return;
+  }
+  /* 重置 */
+  var compPanel = document.getElementById('comparisonPanel');
+  if (compPanel) compPanel.classList.remove('show');
+  var liquid = document.getElementById('fermenterLiquid');
+  if (liquid) { liquid.style.height = '20%'; liquid.className = 'fermenter-liquid filling'; }
+  var bubbles = document.getElementById('bubbles');
+  if (bubbles) bubbles.style.display = 'none';
+  var progBar = document.getElementById('expressionProgressBar');
+  if (progBar) progBar.style.width = '0%';
+  var status = document.getElementById('expressStatus');
+  if (status) status.textContent = '点击按钮开始蛋白表达';
+  var btn = document.getElementById('btnExpress');
+  if (btn) btn.disabled = false;
+}
+
+function startExpression() {
+  var btn = document.getElementById('btnExpress');
+  if (btn) btn.disabled = true;
+
+  var liquid = document.getElementById('fermenterLiquid');
+  var bubbles = document.getElementById('bubbles');
+  var progBar = document.getElementById('expressionProgressBar');
+  var status = document.getElementById('expressStatus');
+
+  if (bubbles) bubbles.style.display = 'block';
+  if (liquid) liquid.classList.add('expressing');
+  if (status) status.textContent = '正在表达蛋白...';
+
+  var duration = 4000; /* 4秒 */
+  var startTime = null;
+
+  function animate(t) {
+    if (!startTime) startTime = t;
+    var elapsed = t - startTime;
+    var p = Math.min(elapsed / duration, 1);
+    /* ease-in-out */
+    p = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+    if (liquid) liquid.style.height = (20 + p * 55) + '%';
+    if (progBar) progBar.style.width = (p * 100) + '%';
+
+    if (p < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      /* 完成 */
+      state.expressionDone = true;
+      if (status) status.textContent = '✅ 蛋白表达完成！';
+      if (bubbles) bubbles.style.display = 'none';
+      if (liquid) liquid.classList.remove('expressing');
+
+      var compPanel = document.getElementById('comparisonPanel');
+      if (compPanel) compPanel.classList.add('show');
+
+      /* 更新卡片中的氨基酸名 */
+      var modName = document.getElementById('modAANameCard');
+      if (modName && state.selectedAA && aaData[state.selectedAA]) {
+        modName.textContent = aaData[state.selectedAA].code;
+      }
+
+      setTimeout(animateBars, 300);
+      markStepDone(4);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function animateBars() {
+  /* 原始酶活性条 */
+  var origBar = document.getElementById('origBar');
+  var origLabel = document.getElementById('origLabel');
+  if (origBar) origBar.style.width = '15%';
+  if (origLabel) origLabel.textContent = '15%';
+
+  /* 改造酶活性条 */
+  var modBar = document.getElementById('modBar');
+  var modLabel = document.getElementById('modLabel');
+  var modVal = state.selectedAA === 'ile' ? '85%' : (state.selectedAA === 'thr' ? '55%' : '30%');
+  var modWidth = state.selectedAA === 'ile' ? '85%' : (state.selectedAA === 'thr' ? '55%' : '30%');
+  if (modBar) modBar.style.width = modWidth;
+  if (modLabel) modLabel.textContent = modVal;
+
+  /* 柱状图 */
+  var barOld = document.getElementById('barOld');
+  var barOldVal = document.getElementById('barOldVal');
+  if (barOld) barOld.style.height = '20px';
+  if (barOldVal) barOldVal.textContent = '15%';
+
+  var barNew = document.getElementById('barNew');
+  var barNewVal = document.getElementById('barNewVal');
+  var barH = state.selectedAA === 'ile' ? 120 : (state.selectedAA === 'thr' ? 75 : 40);
+  if (barNew) barNew.style.height = barH + 'px';
+  if (barNewVal) barNewVal.textContent = modVal;
+}
+
+/* ===== 步骤五：结果分析 ===== */
+function initReportStep() {
+  /* 更新报告中的改造方案 */
+  var scheme = document.getElementById('reportScheme');
+  if (scheme && state.selectedAA && aaData[state.selectedAA]) {
+    var d = aaData[state.selectedAA];
+    scheme.textContent = 'Asn218 → ' + d.code + '（天冬酰胺替换为' + d.name + '）';
+  }
+  if (scheme && !state.selectedAA) {
+    scheme.textContent = 'Asn218 → Ile（天冬酰胺替换为异亮氨酸）★ 推荐方案';
+  }
+}
+
+/* 选择题判分 */
+function answerQuiz(qNum, choice, el) {
+  /* 防止重复作答 */
+  if (state.quizAnswered[qNum]) return;
+
+  var correctAnswers = { 1: 'B', 2: 'B', 3: 'B' };
+  var feedbackTexts = {
+    '1B': '✅ 正确！蛋白质工程通过改造基因来实现蛋白质的改造，遵循"基因→蛋白质"的中心法则。',
+    '1A': '❌ 错误。直接改造蛋白质非常困难且效率低，蛋白质工程的核心是改造编码该蛋白质的基因。',
+    '1C': '❌ 错误。化学修饰属于蛋白质的化学改性，不是蛋白质工程的核心步骤。',
+    '2B': '✅ 正确！本实验的目标正是通过替换氨基酸来提高枯草杆菌蛋白酶的热稳定性。',
+    '2A': '❌ 错误。虽然改造可能影响催化效率，但本实验的主要目标是提高热稳定性。',
+    '2C': '❌ 错误。改变底物特异性是蛋白质工程的另一个应用方向，但不是本实验的目标。',
+    '3B': '✅ 正确！定点突变通过改变基因中特定位置的碱基序列（如A→T），实现对应密码子的精确替换，进而改变氨基酸。',
+     '3A': '❌ 错误。定点突变直接改变的是基因的碱基序列，而非蛋白质的空间结构——后者是间接结果。',
+     '3C': '❌ 错误。定点突变作用于DNA（基因），而非mRNA。mRNA序列的变化是DNA改变后转录的结果。'
+  };
+  var correct = correctAnswers[qNum];
+  var key = qNum + choice;
+
+  state.quizAnswered[qNum] = true;
+
+  /* 标记所有选项 */
+  var parent = el.parentElement;
+  var options = parent.querySelectorAll('.quiz-opt');
+  for (var i = 0; i < options.length; i++) {
+    options[i].style.pointerEvents = 'none';
+    var optLetter = options[i].textContent.trim().charAt(0);
+    if (optLetter === correct) options[i].classList.add('correct');
+    if (optLetter === choice && choice !== correct) options[i].classList.add('wrong');
+  }
+
+  /* 显示反馈 */
+  var fb = document.getElementById('quizFeedback' + qNum);
+  if (fb) {
+    fb.textContent = feedbackTexts[key] || '未知错误';
+    fb.className = 'quiz-feedback show ' + (choice === correct ? 'correct' : 'wrong');
+  }
+
+  /* 全部答完标记步骤完成 */
+  if (Object.keys(state.quizAnswered).length >= 3) {
+    markStepDone(5);
+  }
+}
+
+/* ===== 初始绘制 ===== */
+function init() {
+  drawProtein();
+  setTemp('normal');
+}
+
+window.addEventListener('load', init);
+</script>
+<div style="text-align:center;padding:12px;color:#999;font-size:14px;">作者：冯海倩、任姬</div>
+</body>
+</html>

@@ -1,0 +1,426 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 10px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2em;
+}
+
+.mode-selector {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.mode-selector button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.mode-selector button:hover {
+    background-color: #0b7dda;
+}
+
+#game-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+    display: none;
+}
+
+/* 游戏界面样式 */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.game-header h2 {
+    font-size: 1.8em;
+    color: #4CAF50;
+}
+
+.timer {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ff5722;
+}
+
+.photosynthesis-diagram {
+    width: 100%;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.photosynthesis-diagram img {
+    max-width: 100%;
+    height: auto;
+}
+
+.condition-controls {
+    margin: 20px 0;
+}
+
+.control-group {
+    margin-bottom: 20px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.slider-container input[type="range"] {
+    flex: 1;
+}
+
+.slider-value {
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.change-button {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.change-button:hover {
+    background-color: #f57c00;
+}
+
+.substance-changes {
+    margin: 20px 0;
+}
+
+.substance-changes h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.substance-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.substance-item {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.substance-item label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.change-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.arrow-btn {
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrow-btn:hover {
+    background-color: #45a049;
+}
+
+.change-value {
+    min-width: 80px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 5px 10px;
+    background-color: white;
+}
+
+.submit-button {
+    display: block;
+    width: 200px;
+    margin: 20px auto;
+    padding: 15px;
+    font-size: 1.1em;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+.feedback {
+    margin: 20px 0;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.feedback.correct {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.feedback.incorrect {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.feedback h3 {
+    margin-bottom: 10px;
+}
+
+.feedback p {
+    margin-bottom: 15px;
+}
+
+.explanation {
+    background-color: #e7f3ff;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 15px;
+    text-align: left;
+}
+
+.explanation h4 {
+    margin-bottom: 10px;
+    color: #004085;
+}
+
+/* 物质结果样式 */
+.substance-results {
+    margin: 15px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.substance-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.substance-result:last-child {
+    margin-bottom: 0;
+}
+
+.substance-result.correct {
+    background-color: #d4edda;
+    border-left: 4px solid #155724;
+}
+
+.substance-result.incorrect {
+    background-color: #f8d7da;
+    border-left: 4px solid #721c24;
+}
+
+.substance-name {
+    font-weight: bold;
+    margin-right: 15px;
+    min-width: 80px;
+}
+
+.user-answer {
+    margin-right: 15px;
+}
+
+.correct-answer {
+    color: #721c24;
+    font-weight: bold;
+    font-style: italic;
+}
+
+@media (max-width: 480px) {
+    .substance-result {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .substance-name {
+        margin-right: 0;
+    }
+}
+
+/* 数据记录区域 */
+.data-record {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.data-record h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.data-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.data-item:last-child {
+    border-bottom: none;
+}
+
+/* 知识讲解区域 */
+.knowledge-section {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.knowledge-section h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.knowledge-section p {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .mode-selector {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .mode-selector button {
+        width: 80%;
+    }
+    
+    #game-container {
+        padding: 20px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .substance-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    header p {
+        font-size: 1em;
+    }
+    
+    .mode-selector button {
+        padding: 12px 24px;
+        font-size: 1em;
+    }
+    
+    #game-container {
+        padding: 15px;
+    }
+    
+    .submit-button {
+        width: 100%;
+    }
+}

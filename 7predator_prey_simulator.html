@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="F&R">
+<title>猞猁与雪兔种群数量变化模拟器 - 人教版选择性必修2</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "STHeiti", "SimHei", sans-serif;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8edf2 50%, #f0f4f8 100%);
+    min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px;
+}
+.container {
+    width: 100%; max-width: 1200px; background: #ffffff; border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06); overflow: hidden;
+}
+.header {
+    background: linear-gradient(135deg, #1a5276 0%, #2980b9 50%, #1a5276 100%);
+    color: #fff; padding: 18px 30px; text-align: center;
+}
+.header h1 { font-size: 1.6em; font-weight: 700; letter-spacing: 2px; margin-bottom: 4px; }
+.header .subtitle { font-size: 0.95em; opacity: 0.9; font-weight: 400; }
+.main-content { display: flex; flex-wrap: wrap; min-height: 500px; }
+.chart-area {
+    flex: 0 0 62%; min-width: 400px; padding: 16px 8px 16px 16px;
+    display: flex; flex-direction: column; align-items: center;
+}
+.chart-area canvas { width: 100%; height: auto; display: block; }
+.explanation-area {
+    flex: 0 0 38%; min-width: 280px; padding: 20px 20px 20px 8px;
+    display: flex; flex-direction: column; border-left: 1px solid #e8ecf1; background: #fafbfc;
+}
+.explanation-area .section-title {
+    font-size: 1.1em; font-weight: 700; color: #1a5276; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 2px solid #e0e5ea; display: flex; align-items: center; gap: 6px;
+}
+.current-time-display {
+    background: #f0f6fc; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px;
+    font-size: 0.95em; color: #1a5276; border-left: 4px solid #2980b9;
+}
+.current-time-display .t-value { font-size: 1.4em; font-weight: 700; color: #1a5276; }
+.stage-indicator {
+    display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em;
+    font-weight: 600; color: #fff; margin-bottom: 10px; background: #2980b9;
+}
+.explanation-text {
+    flex: 1; font-size: 0.9em; line-height: 1.8; color: #444; padding: 12px;
+    background: #fff; border-radius: 8px; border: 1px solid #e8ecf1; min-height: 200px; transition: all 0.3s ease;
+}
+.explanation-text .highlight { color: #c0392b; font-weight: 700; }
+.explanation-text .highlight-blue { color: #2980b9; font-weight: 700; }
+.summary-box {
+    margin-top: 10px; padding: 10px 14px; background: #eaf7ea; border-radius: 8px;
+    border-left: 4px solid #27ae60; font-size: 0.85em; color: #1e6e3e; display: none;
+}
+.summary-box.visible { display: block; }
+.controls-area {
+    display: flex; justify-content: center; gap: 16px; padding: 16px 30px 20px;
+    flex-wrap: wrap; border-top: 1px solid #e8ecf1; background: #fafbfc;
+}
+.btn {
+    padding: 11px 28px; font-size: 1em; font-weight: 600; border: none; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease; font-family: inherit; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 6px;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.15); }
+.btn:active { transform: translateY(0); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.btn-start { background: #27ae60; color: #fff; }
+.btn-start:hover { background: #219a52; }
+.btn-pause { background: #f39c12; color: #fff; }
+.btn-pause:hover { background: #e08e0b; }
+.btn-reset { background: #95a5a6; color: #fff; }
+.btn-reset:hover { background: #7f8c8d; }
+.btn-speed { background: #8e44ad; color: #fff; font-size: 0.85em; padding: 8px 16px; }
+.btn-speed:hover { background: #7d3c98; }
+.speed-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.85em; color: #666; }
+@media (max-width: 860px) {
+    .main-content { flex-direction: column; }
+    .chart-area { flex: 0 0 auto; min-width: auto; padding: 12px; }
+    .explanation-area { flex: 0 0 auto; min-width: auto; border-left: none; border-top: 1px solid #e8ecf1; padding: 16px; }
+    .header h1 { font-size: 1.3em; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🐰🐱 猞猁与雪兔种群数量变化模拟器</h1>
+        <div class="subtitle">人教版选择性必修2 · 第1章 种群及其动态</div>
+    </div>
+
+    <div class="main-content">
+        <div class="chart-area">
+            <canvas id="mainChart" width="680" height="460"></canvas>
+        </div>
+
+        <div class="explanation-area" id="explanationArea">
+            <div class="section-title">📝 实时讲解</div>
+            <div class="current-time-display" id="timeDisplay">
+                当前年份 <span class="t-value" id="tValue">1845</span>
+            </div>
+            <div class="stage-indicator" id="stageIndicator">⏳ 等待开始</div>
+            <div class="explanation-text" id="explanationText">
+                点击下方 <strong>「▶ 开始模拟」</strong>按钮，观察猞猁与雪兔种群数量随时间波动的动态曲线。<br><br>
+                <strong>观察要点：</strong><br>
+                ① 两条曲线呈周期性波动（约10年周期）<br>
+                ② 猞猁（红色虚线）的峰值<span class="highlight">总是滞后</span>于雪兔（蓝色实线）<br>
+                ③ 这种动态平衡体现了生态系统的<span class="highlight-blue">负反馈调节</span>机制
+            </div>
+            <div class="summary-box" id="summaryBox">
+                <strong>📌 总结：</strong>①两种群数量呈周期性波动（约10年周期） ②猞猁变化滞后于雪兔（约10年） ③这种机制体现了生态系统的自我调节能力（负反馈调节）④洛特卡-沃尔泰拉方程描述了这种动态关系
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-area">
+        <button class="btn btn-start" id="btnStart" onclick="startSimulation()">▶ 开始模拟</button>
+        <button class="btn btn-pause" id="btnPause" onclick="pauseSimulation()">⏸ 暂停</button>
+        <button class="btn btn-reset" id="btnReset" onclick="resetSimulation()">🔄 重新开始</button>
+        <div class="speed-indicator">
+            <span>速度：</span>
+            <button class="btn btn-speed" id="btnSpeed" onclick="toggleSpeed()">⚡ ×<span id="speedLabel">1</span></button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var canvas = document.getElementById('mainChart');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width;
+    var H = canvas.height;
+    var margin = { top: 50, right: 50, bottom: 55, left: 65 };
+    var plotW = W - margin.left - margin.right;
+    var plotH = H - margin.top - margin.bottom;
+    var plotX = margin.left;
+    var plotY = margin.top;
+
+    var YEAR_MIN = 1845;
+    var YEAR_MAX = 1895;
+    var YEAR_RANGE = YEAR_MAX - YEAR_MIN;
+    var N_MAX = 140;
+
+    function tx(year) { return plotX + ((year - YEAR_MIN) / YEAR_RANGE) * plotW; }
+    function ny(n) { return plotY + plotH - (n / N_MAX) * plotH; }
+
+    var preyKeyPoints = [
+        { year: 1845, n: 120 },
+        { year: 1848, n: 135 },
+        { year: 1852, n: 142 },
+        { year: 1857, n: 110 },
+        { year: 1862, n: 35 },
+        { year: 1865, n: 25 },
+        { year: 1869, n: 40 },
+        { year: 1873, n: 65 },
+        { year: 1877, n: 100 },
+        { year: 1880, n: 130 },
+        { year: 1883, n: 105 },
+        { year: 1887, n: 50 },
+        { year: 1890, n: 30 },
+        { year: 1893, n: 55 }
+    ];
+
+    var predatorKeyPoints = [
+        { year: 1845, n: 25 },
+        { year: 1849, n: 30 },
+        { year: 1854, n: 50 },
+        { year: 1859, n: 75 },
+        { year: 1864, n: 95 },
+        { year: 1869, n: 65 },
+        { year: 1874, n: 30 },
+        { year: 1879, n: 38 },
+        { year: 1883, n: 55 },
+        { year: 1887, n: 78 },
+        { year: 1890, n: 90 },
+        { year: 1893, n: 70 }
+    ];
+
+    var peakValleyPrey = [
+        { year: 1852, n: 142, type: 'peak' },
+        { year: 1865, n: 25, type: 'valley' },
+        { year: 1880, n: 130, type: 'peak' },
+        { year: 1890, n: 30, type: 'valley' }
+    ];
+
+    var peakValleyPredator = [
+        { year: 1864, n: 95, type: 'peak' },
+        { year: 1874, n: 30, type: 'valley' },
+        { year: 1890, n: 90, type: 'peak' }
+    ];
+
+    function catmullRom(p0, p1, p2, p3, t) {
+        var t2 = t * t;
+        var t3 = t2 * t;
+        return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+    }
+
+    function sampleSpline(keyPoints, numSamples) {
+        var pts = keyPoints.slice();
+        var n = pts.length;
+        var result = [];
+        for (var i = 0; i < n - 1; i++) {
+            var p0 = pts[Math.max(0, i - 1)];
+            var p1 = pts[i];
+            var p2 = pts[i + 1];
+            var p3 = pts[Math.min(n - 1, i + 2)];
+            var segSamples = Math.round(numSamples / (n - 1));
+            if (i === n - 2) segSamples = numSamples - result.length;
+            for (var j = 0; j < segSamples; j++) {
+                var frac = j / segSamples;
+                var nyear = p1.year + frac * (p2.year - p1.year);
+                var nn = catmullRom(p0.n, p1.n, p2.n, p3.n, frac);
+                nn = Math.max(0, nn);
+                result.push({ year: nyear, n: nn });
+            }
+        }
+        return result;
+    }
+
+    var NUM_SAMPLES = 500;
+    var preyCurve = sampleSpline(preyKeyPoints, NUM_SAMPLES);
+    var predatorCurve = sampleSpline(predatorKeyPoints, NUM_SAMPLES);
+
+    var animState = {
+        running: false,
+        currentYear: YEAR_MIN,
+        speed: 1.25,
+        lastTime: 0,
+        animationId: null,
+        finished: false,
+        firstFrame: true
+    };
+
+    function getPreyN(year) {
+        var curve = preyCurve;
+        if (year <= YEAR_MIN) return curve[0].n;
+        if (year >= YEAR_MAX) return curve[curve.length - 1].n;
+        var idx = ((year - YEAR_MIN) / YEAR_RANGE) * (curve.length - 1);
+        var i0 = Math.floor(idx);
+        var i1 = Math.min(i0 + 1, curve.length - 1);
+        var frac = idx - i0;
+        return curve[i0].n + (curve[i1].n - curve[i0].n) * frac;
+    }
+
+    function getPredatorN(year) {
+        var curve = predatorCurve;
+        if (year <= YEAR_MIN) return curve[0].n;
+        if (year >= YEAR_MAX) return curve[curve.length - 1].n;
+        var idx = ((year - YEAR_MIN) / YEAR_RANGE) * (curve.length - 1);
+        var i0 = Math.floor(idx);
+        var i1 = Math.min(i0 + 1, curve.length - 1);
+        var frac = idx - i0;
+        return curve[i0].n + (curve[i1].n - curve[i0].n) * frac;
+    }
+
+    function drawGrid() {
+        ctx.strokeStyle = '#e8e8e8';
+        ctx.lineWidth = 0.6;
+        var xTickVals = [1845, 1855, 1865, 1875, 1885, 1895];
+        for (var i = 0; i < xTickVals.length; i++) {
+            var x = tx(xTickVals[i]);
+            ctx.beginPath();
+            ctx.moveTo(x, plotY);
+            ctx.lineTo(x, plotY + plotH);
+            ctx.stroke();
+        }
+        var yTickVals = [0, 20, 40, 60, 80, 100, 120, 140];
+        for (var i = 0; i < yTickVals.length; i++) {
+            var y = ny(yTickVals[i]);
+            ctx.beginPath();
+            ctx.moveTo(plotX, y);
+            ctx.lineTo(plotX + plotW, y);
+            ctx.stroke();
+        }
+    }
+
+    function drawAxes() {
+        ctx.strokeStyle = '#555';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(plotX, plotY);
+        ctx.lineTo(plotX, plotY + plotH);
+        ctx.lineTo(plotX + plotW, plotY + plotH);
+        ctx.stroke();
+
+        ctx.fillStyle = '#333';
+        ctx.font = 'bold 13px "Microsoft YaHei","PingFang SC","SimHei",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('时间/年', plotX + plotW / 2, plotY + plotH + 40);
+
+        ctx.save();
+        ctx.translate(plotX - 50, plotY + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.fillText('种群数量', 0, 0);
+        ctx.restore();
+
+        ctx.fillStyle = '#444';
+        ctx.font = '12px "Microsoft YaHei","PingFang SC","SimHei",sans-serif';
+        ctx.textAlign = 'center';
+        var xTickVals = [1845, 1855, 1865, 1875, 1885, 1895];
+        for (var i = 0; i < xTickVals.length; i++) {
+            var x = tx(xTickVals[i]);
+            ctx.fillText(xTickVals[i], x, plotY + plotH + 18);
+        }
+
+        ctx.textAlign = 'right';
+        var yLabels = [0, 20, 40, 60, 80, 100, 120, 140];
+        for (var i = 0; i < yLabels.length; i++) {
+            var y = ny(yLabels[i]);
+            ctx.fillText(yLabels[i], plotX - 10, y + 4);
+        }
+
+        ctx.strokeStyle = '#ccc';
+        ctx.lineWidth = 0.5;
+
+        ctx.fillStyle = '#555';
+        ctx.beginPath();
+        ctx.moveTo(plotX + plotW, plotY + plotH);
+        ctx.lineTo(plotX + plotW - 10, plotY + plotH - 5);
+        ctx.lineTo(plotX + plotW - 10, plotY + plotH + 5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(plotX, plotY);
+        ctx.lineTo(plotX - 5, plotY + 10);
+        ctx.lineTo(plotX + 5, plotY + 10);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#1a5276';
+        ctx.font = 'bold 14px "Microsoft YaHei","PingFang SC","SimHei",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('猞猁与雪兔种群数量变化曲线', plotX + plotW / 2, plotY - 18);
+
+        var lgX = plotX + plotW - 155;
+        var lgY = plotY + 8;
+        var lgW = 148;
+        var lgH = 50;
+        ctx.fillStyle = 'rgba(255,255,255,0.92)';
+        ctx.strokeStyle = '#d0d6dc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        var r = 6;
+        ctx.moveTo(lgX + r, lgY);
+        ctx.lineTo(lgX + lgW - r, lgY);
+        ctx.arcTo(lgX + lgW, lgY, lgX + lgW, lgY + r, r);
+        ctx.lineTo(lgX + lgW, lgY + lgH - r);
+        ctx.arcTo(lgX + lgW, lgY + lgH, lgX + lgW - r, lgY + lgH, r);
+        ctx.lineTo(lgX + r, lgY + lgH);
+        ctx.arcTo(lgX, lgY + lgH, lgX, lgY + lgH - r, r);
+        ctx.lineTo(lgX, lgY + r);
+        ctx.arcTo(lgX, lgY, lgX + r, lgY, r);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#2c6fce';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(lgX + 10, lgY + 16);
+        ctx.lineTo(lgX + 40, lgY + 16);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#e74c3c';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 4]);
+        ctx.beginPath();
+        ctx.moveTo(lgX + 10, lgY + 36);
+        ctx.lineTo(lgX + 40, lgY + 36);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#333';
+        ctx.font = '11px "Microsoft YaHei","PingFang SC","SimHei",sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('雪兔种群（猎物）', lgX + 48, lgY + 20);
+        ctx.fillText('猞猁种群（捕食者）', lgX + 48, lgY + 40);
+    }
+
+    function drawFullCurves() {
+        ctx.beginPath();
+        ctx.strokeStyle = '#2c6fce';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([]);
+        for (var i = 0; i < preyCurve.length; i++) {
+            var pt = preyCurve[i];
+            var x = tx(pt.year), y = ny(pt.n);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#e74c3c';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([8, 4]);
+        for (var i = 0; i < predatorCurve.length; i++) {
+            var pt = predatorCurve[i];
+            var x = tx(pt.year), y = ny(pt.n);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        drawAllPeakValleyDots();
+    }
+
+    function drawAllPeakValleyDots() {
+        drawPeakValleyDotsByTime(YEAR_MAX);
+    }
+
+    function drawPeakValleyDotsByTime(maxYear) {
+        var allPeaks = peakValleyPrey.concat(peakValleyPredator);
+        for (var i = 0; i < allPeaks.length; i++) {
+            var pv = allPeaks[i];
+            if (pv.year > maxYear) continue;
+            var x = tx(pv.year), y = ny(pv.n);
+            ctx.beginPath();
+            ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+            ctx.fillStyle = i < peakValleyPrey.length ? '#2c6fce' : '#e74c3c';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+    }
+
+    function drawProgressiveCurve(year) {
+        var drawIndexA = Math.floor(((year - YEAR_MIN) / YEAR_RANGE) * (preyCurve.length - 1));
+        var drawIndexB = Math.floor(((year - YEAR_MIN) / YEAR_RANGE) * (predatorCurve.length - 1));
+        drawIndexA = Math.min(drawIndexA, preyCurve.length - 1);
+        drawIndexB = Math.min(drawIndexB, predatorCurve.length - 1);
+
+        if (drawIndexA > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#2c6fce';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([]);
+            for (var i = 0; i <= drawIndexA; i++) {
+                var pt = preyCurve[i];
+                var x = tx(pt.year), y = ny(pt.n);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        if (drawIndexB > 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([8, 4]);
+            for (var i = 0; i <= drawIndexB; i++) {
+                var pt = predatorCurve[i];
+                var x = tx(pt.year), y = ny(pt.n);
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        drawPeakValleyDotsByTime(year);
+    }
+
+    var flashPhase = 0;
+
+    function drawScanLine(year) {
+        var x = tx(year);
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(100,100,100,0.5)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]);
+        ctx.moveTo(x, plotY);
+        ctx.lineTo(x, plotY + plotH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    function drawFlashingDots(year) {
+        flashPhase += 0.08;
+        var alpha = 0.5 + 0.5 * Math.sin(flashPhase * Math.PI * 2);
+        var preyN = getPreyN(year);
+        var predatorN = getPredatorN(year);
+        var preyX = tx(year), preyY = ny(preyN);
+        var predatorX = tx(year), predatorY = ny(predatorN);
+        var glowRadius = 12;
+
+        ctx.beginPath();
+        ctx.arc(preyX, preyY, glowRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(44,111,206,' + (alpha * 0.25) + ')';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(predatorX, predatorY, glowRadius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(231,76,60,' + (alpha * 0.25) + ')';
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(preyX, preyY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(44,111,206,' + alpha + ')';
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(predatorX, predatorY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(231,76,60,' + alpha + ')';
+        ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+    }
+
+    function drawInitialState() {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+        drawGrid();
+        drawAxes();
+        drawFullCurves();
+    }
+
+    function drawFrame(year) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, W, H);
+        drawGrid();
+        drawAxes();
+        drawProgressiveCurve(year);
+        drawScanLine(year);
+        if (year > YEAR_MIN) {
+            drawFlashingDots(year);
+        }
+    }
+
+    function getStageInfo(year) {
+        if (year <= YEAR_MIN) return {
+            stage: '准备',
+            bg: '#7f8c8d',
+            text: '点击「▶ 开始模拟」按钮，观察猞猁与雪兔种群数量随时间的动态变化。'
+        };
+        if (year >= 1894) return {
+            stage: '模拟结束 ✅',
+            bg: '#27ae60',
+            text: '<strong>📌 核心知识点总结：</strong><br>' +
+                  '① 两种群数量呈<span class="highlight">周期性波动</span>（约10年周期）<br>' +
+                  '② 猞猁变化<span class="highlight">滞后</span>于雪兔（约10年）<br>' +
+                  '③ 这种机制体现了生态系统的<span class="highlight-blue">自我调节能力</span>（负反馈调节）<br>' +
+                  '④ 洛特卡-沃尔泰拉方程描述了这种猞猁-雪兔动态关系'
+        };
+
+        var stages = [
+            { min: 1845, max: 1851, label: '阶段1：初始增长期', bg: '#2980b9',
+              text: '<strong>初始阶段（1845-1851年）：</strong>雪兔（<span class="highlight-blue">蓝色实线</span>）食物充足、天敌较少，种群数量<span class="highlight">快速增长</span>（从120→约140）。<br><br>' +
+                    '猞猁（<span class="highlight">红色虚线</span>）因食物丰富也开始<span class="highlight-blue">缓慢增加</span>（从25→约40）。' },
+            { min: 1852, max: 1857, label: '阶段2：雪兔达峰值', bg: '#e67e22',
+              text: '<strong>⚠️ 雪兔达到数量峰值！（约1852-1855年）</strong><br><br>' +
+                    '此时雪兔种群数量<span class="highlight">达到约142</span>，为观测期最高点。<br><br>' +
+                    '但由于猞猁数量也在持续增加，雪兔将面临<span class="highlight">更大的捕食压力</span>。' },
+            { min: 1858, max: 1867, label: '阶段3：关键转折', bg: '#c0392b',
+              text: '<strong>🔴 关键转折！（1858-1867年）</strong><br><br>' +
+                    '雪兔因猞猁增多而<span class="highlight">急剧下降</span>（从142→25）。<br><br>' +
+                    '猞猁约在1864年<span class="highlight-blue">达到数量峰值</span>（N≈95），<br>滞后雪兔峰值约10年。<br><br>' +
+                    '⚠️ <strong>注意观察：</strong>猞猁峰值总是<span class="highlight">滞后于</span>雪兔峰值约10年！' },
+            { min: 1868, max: 1875, label: '阶段4：双双下降', bg: '#8e44ad',
+              text: '<strong>📉 双双下降阶段（1868-1875年）</strong><br><br>' +
+                    '雪兔减少 → 猞猁食物不足 → <span class="highlight">两个种群数量都在下降</span>。<br><br>' +
+                    '这是<span class="highlight-blue">负反馈调节</span>的典型体现：猞猁过多→雪兔减少→猞猁随之减少。<br><br>' +
+                    '雪兔谷值N≈25（1865年），猞猁谷值N≈30（1874年）。' },
+            { min: 1876, max: 1883, label: '阶段5：雪兔恢复并达峰', bg: '#2980b9',
+              text: '<strong>📈 雪兔恢复期（1876-1883年）</strong><br><br>' +
+                    '猞猁数量减少后，雪兔<span class="highlight">捕食压力减轻</span>，数量开始逐步回升。<br><br>' +
+                    '从谷值N≈25缓慢回升，约1880年达到<span class="highlight">第二个峰值</span>（N≈130），<br>' +
+                    '随后开始下降。猞猁也从谷值（N≈30）缓慢恢复。<br><br>' +
+                    '<span class="highlight-blue">注意：雪兔第二峰值明显晚于第一周期，上升更平缓。</span>' },
+            { min: 1884, max: 1893, label: '阶段6：新周期', bg: '#1a5276',
+              text: '<strong>🔄 进入新周期（1884-1893年）</strong><br><br>' +
+                    '种群数量再次呈现<span class="highlight">约10年的周期性变化</span>。<br><br>' +
+                    '雪兔约在1890年再次达到谷值（N≈30），<br>猞猁约在1890年再次达到峰值（N≈90），滞后雪兔峰值约10年。<br><br>' +
+                    '这种<span class="highlight-blue">动态平衡</span>是自然界中猞猁与雪兔关系的典型特征。' }
+        ];
+
+        for (var i = 0; i < stages.length; i++) {
+            if (year >= stages[i].min && year <= stages[i].max) return stages[i];
+        }
+        return stages[0];
+    }
+
+    function updateExplanation(year) {
+        var info = getStageInfo(year);
+        document.getElementById('stageIndicator').textContent = '🔬 ' + info.label;
+        document.getElementById('stageIndicator').style.background = info.bg;
+        document.getElementById('explanationText').innerHTML = info.text;
+        document.getElementById('tValue').textContent = Math.round(year);
+        var summaryBox = document.getElementById('summaryBox');
+        if (year >= 1894) {
+            summaryBox.classList.add('visible');
+        } else {
+            summaryBox.classList.remove('visible');
+        }
+    }
+
+    function animate(timestamp) {
+        if (!animState.running) return;
+        if (animState.firstFrame) {
+            animState.lastTime = timestamp;
+            animState.firstFrame = false;
+            animState.animationId = requestAnimationFrame(animate);
+            return;
+        }
+        var deltaSec = (timestamp - animState.lastTime) / 1000;
+        animState.lastTime = timestamp;
+        var newYear = animState.currentYear + deltaSec * animState.speed;
+        if (newYear >= YEAR_MAX) {
+            newYear = YEAR_MAX;
+            animState.currentYear = newYear;
+            animState.finished = true;
+            animState.running = false;
+            drawFrame(animState.currentYear);
+            updateExplanation(animState.currentYear);
+            updateButtonStates();
+            return;
+        }
+        animState.currentYear = newYear;
+        drawFrame(animState.currentYear);
+        updateExplanation(animState.currentYear);
+        updateButtonStates();
+        animState.animationId = requestAnimationFrame(animate);
+    }
+
+    function updateButtonStates() {
+        var btnStart = document.getElementById('btnStart');
+        var btnPause = document.getElementById('btnPause');
+        if (animState.finished) {
+            btnStart.textContent = '▶ 开始模拟'; btnStart.style.opacity = '0.6';
+            btnPause.style.opacity = '0.6'; return;
+        }
+        if (animState.running) {
+            btnStart.textContent = '▶ 播放中...'; btnStart.style.opacity = '0.6';
+            btnPause.style.opacity = '1';
+        } else {
+            btnStart.textContent = '▶ 继续播放'; btnStart.style.opacity = '1';
+            btnPause.style.opacity = '0.6';
+        }
+    }
+
+    window.startSimulation = function() {
+        if (animState.finished) {
+            resetSimulation();
+            setTimeout(function() {
+                animState.running = true;
+                animState.lastTime = 0;
+                animState.firstFrame = true;
+                animState.animationId = requestAnimationFrame(animate);
+                updateButtonStates();
+            }, 100);
+            return;
+        }
+        if (animState.running) return;
+        animState.running = true;
+        animState.lastTime = 0;
+        animState.firstFrame = true;
+        animState.animationId = requestAnimationFrame(animate);
+        updateButtonStates();
+    };
+
+    window.pauseSimulation = function() {
+        animState.running = false;
+        if (animState.animationId) {
+            cancelAnimationFrame(animState.animationId);
+            animState.animationId = null;
+        }
+        animState.firstFrame = true;
+        updateButtonStates();
+    };
+
+    window.resetSimulation = function() {
+        animState.running = false;
+        animState.finished = false;
+        if (animState.animationId) {
+            cancelAnimationFrame(animState.animationId);
+            animState.animationId = null;
+        }
+        animState.currentYear = YEAR_MIN;
+        animState.lastTime = 0;
+        animState.firstFrame = true;
+        drawInitialState();
+        updateExplanation(YEAR_MIN);
+        document.getElementById('stageIndicator').textContent = '⏳ 等待开始';
+        document.getElementById('stageIndicator').style.background = '#7f8c8d';
+        document.getElementById('btnStart').textContent = '▶ 开始模拟';
+        document.getElementById('btnStart').style.opacity = '1';
+        document.getElementById('btnPause').style.opacity = '1';
+        document.getElementById('summaryBox').classList.remove('visible');
+    };
+
+    var speedLevels = [1, 2, 5];
+    var speedIdx = 1;
+
+    window.toggleSpeed = function() {
+        speedIdx = (speedIdx + 1) % speedLevels.length;
+        animState.speed = speedLevels[speedIdx] * 1.25;
+        document.getElementById('speedLabel').textContent = speedLevels[speedIdx];
+    };
+
+    function initChart() {
+        drawInitialState();
+        updateExplanation(YEAR_MIN);
+        document.getElementById('stageIndicator').textContent = '⏳ 等待开始';
+        document.getElementById('stageIndicator').style.background = '#7f8c8d';
+    }
+
+    initChart();
+})();
+</script>
+<div style="text-align:center;padding:12px;color:#999;font-size:14px;">作者：冯海倩、任姬</div>
+</body>
+</html>
